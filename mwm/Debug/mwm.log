@@ -1,4 +1,0 @@
-﻿  mwm.cpp
-C:\Users\LAPTOP KING\source\repos\mwm\mwm\mwm.cpp(178,20): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\LAPTOP KING\source\repos\mwm\mwm\mwm.cpp(181,20): warning C4305: 'argument': truncation from 'double' to 'float'
-  mwm.vcxproj -> C:\Users\LAPTOP KING\source\repos\mwm\Debug\mwm.exe
