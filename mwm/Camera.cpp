@@ -44,32 +44,32 @@ bool Camera::CheckCollision(const Point& newPos) {
 bool Camera::CheckDoorCollision(const Point& newPos) {
 	if (newPos.x > doorWalls[0].min.x && newPos.x < doorWalls[0].max.x &&
 		newPos.y > doorWalls[0].min.y && newPos.y < doorWalls[0].max.y &&
-		newPos.z > doorWalls[0].min.z && newPos.z < doorWalls[0].max.z && !Doors[0]->open) {
+		newPos.z > doorWalls[0].min.z && newPos.z < doorWalls[0].max.z && !Doors[0]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	if (newPos.x > doorWalls[1].min.x && newPos.x < doorWalls[1].max.x &&
 		newPos.y > doorWalls[1].min.y && newPos.y < doorWalls[1].max.y &&
-		newPos.z > doorWalls[1].min.z && newPos.z < doorWalls[1].max.z && !Doors[1]->open) {
+		newPos.z > doorWalls[1].min.z && newPos.z < doorWalls[1].max.z && !Doors[1]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	if (newPos.x > doorWalls[2].min.x && newPos.x < doorWalls[2].max.x &&
 		newPos.y > doorWalls[2].min.y && newPos.y < doorWalls[2].max.y &&
-		newPos.z > doorWalls[2].min.z && newPos.z < doorWalls[2].max.z && !Doors[2]->open) {
+		newPos.z > doorWalls[2].min.z && newPos.z < doorWalls[2].max.z && !Doors[2]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	if (newPos.x > doorWalls[5].min.x && newPos.x < doorWalls[5].max.x &&
 		newPos.y > doorWalls[5].min.y && newPos.y < doorWalls[5].max.y &&
-		newPos.z > doorWalls[5].min.z && newPos.z < doorWalls[5].max.z && !Doors[9]->open) {
+		newPos.z > doorWalls[5].min.z && newPos.z < doorWalls[5].max.z && !Doors[9]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	if (newPos.x > doorWalls[6].min.x && newPos.x < doorWalls[6].max.x &&
 		newPos.y > doorWalls[6].min.y && newPos.y < doorWalls[6].max.y &&
-		newPos.z > doorWalls[6].min.z && newPos.z < doorWalls[6].max.z && !Doors[8]->open) {
+		newPos.z > doorWalls[6].min.z && newPos.z < doorWalls[6].max.z && !Doors[8]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	if (newPos.x > doorWalls[7].min.x && newPos.x < doorWalls[7].max.x &&
 		newPos.y > doorWalls[7].min.y && newPos.y < doorWalls[7].max.y &&
-		newPos.z > doorWalls[7].min.z && newPos.z < doorWalls[7].max.z && !Doors[7]->open) {
+		newPos.z > doorWalls[7].min.z && newPos.z < doorWalls[7].max.z && !Doors[7]->isOpen) {
 		return true; // ????? ?? ????
 	}
 	return false; // ?? ???? ??????
