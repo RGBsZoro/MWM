@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <GL/glut.h>
 #include <iostream>
 #include <vector>
@@ -10,8 +10,11 @@ typedef float M3DVector4f[4];
 class Lighting
 {
     public:
-        void setupLighting(Point lightPosition);
-        void drawStreetLight(Point baseCenter, double poleHeight, double poleRadius, double curveRadius, double curveAngle, double lampSize, bool isLeftSide);
+        // أضفنا lightID هنا
+        void setupLighting(Point lightPosition, int lightIndex);
+
+        // وأضفنا lightID هنا أيضاً
+        void drawStreetLight(Point baseCenter, double poleHeight, double poleRadius, double curveRadius, double curveAngle, double lampSize, bool isLeftSide, int lightIndex);
 
         // light settings
         GLfloat LightPos[4];

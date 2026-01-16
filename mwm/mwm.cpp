@@ -1,9 +1,15 @@
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <GL/freeglut.h>
 #include "Point.h"
 #include "Cuboid.h"
 #include "Camera.h"
-
+#include "Door.h"
+#include "Lighting.h"
+#ifndef GL_LIGHT1
+#define GL_LIGHT0 0x4000
+#define GL_LIGHT1 0x4001
+#define GL_LIGHT2 0x4002
+#endif
 using namespace std;
 
 struct color3f
@@ -29,6 +35,100 @@ static void mouseButton(int button, int state, int x, int y);
 
 
 
+void drawStreet() {
+	float startZ = 750.0f; // بداية الرصيف من عند جدار المعرض الأمامي
+	float sidewalkW = 100.0f; // عرض الرصيف
+	float streetW = 600.0f;   // عرض الشارع
+	float totalLength = 3000.0f; // طول الشارع ممتد يميناً ويساراً
+
+	// --- 1. رسم الرصيف (Sidewalk) ---
+	// سنستخدم حلقة فور لرسم مربعات الرصيف (أسود وأبيض)
+	float pieceLen = 50.0f;
+	for (float x = -totalLength / 2; x < totalLength / 2; x += pieceLen) {
+		if (((int)(x / pieceLen)) % 2 == 0)
+			glColor3ub(240, 240, 240); // أبيض
+		else
+			glColor3ub(30, 30, 30);    // أسود
+
+		Cuboid tile(Point(x + pieceLen / 2, -1, startZ + sidewalkW / 2), 2, sidewalkW, pieceLen);
+		tile.draw();
+	}
+
+	// --- 2. رسم الشارع (Asphalt) ---
+	glColor3ub(20, 20, 20); // لون أسفلت غامق جداً
+	// الشارع يقع بعد الرصيف مباشرة
+	Cuboid asphalt(Point(0, -2.5, startZ + sidewalkW + streetW / 2), 1, streetW, totalLength);
+	asphalt.draw();
+
+	// --- 3. خطوط الشارع (Street Lines) ---
+	glColor3ub(255, 255, 255); // خطوط بيضاء متقطعة
+	float dashLen = 60.0f;
+	for (float x = -totalLength / 2; x < totalLength / 2; x += dashLen * 2) {
+		Cuboid line(Point(x, -2, startZ + sidewalkW + streetW / 2), 1, 10, dashLen);
+		line.draw();
+	}
+}
+
+
+void drawStrokeText(const char* string, float x, float y, float z, float scale) {
+	glPushMatrix();
+	glTranslatef(x, y, z); // تحديد مكانه
+	glScalef(scale, scale, scale); // تصغير الخط ليتناسب مع المبنى
+	glLineWidth(3); // جعل الخط عريضاً وواضحاً
+
+	for (const char* c = string; *c != '\0'; c++) {
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+	}
+	glPopMatrix();
+}
+
+
+
+void drawDetailedBuilding() {
+	float totalW = 1500.0f;
+	float totalH = 200.0f;
+	float totalL = 1500.0f;
+	float t = 5.0f;
+
+	// باب كبير لمعرض سيارات (العرض 500 الارتفاع 150)
+	float doorW = 500.0f;
+	float doorH = 150.0f;
+
+	// 1. الأرضية والسقف والجدران الخارجية
+	glColor3f(0.2f, 0.2f, 0.2f); // أرضية المعرض (أسود فخم)
+	Cuboid floor(Point(0, -3, 0), t, totalL, totalW); floor.draw();
+
+	glColor3f(0.8f, 0.8f, 0.8f); // سقف
+	Cuboid ceiling(Point(0, -3 + totalH, 0), t, totalL, totalW); ceiling.draw();
+
+	glColor3f(0.5f, 0.5f, 0.5f); // جدار خلفي
+	Cuboid backWall(Point(0, -3, -totalL / 2), totalH, t, totalW); backWall.draw();
+
+	// جدران جانبية
+	glColor3f(0.6f, 0.6f, 0.6f);
+	Cuboid rightWall(Point(totalW / 2, -3, 0), totalH, totalL, t); rightWall.draw();
+	Cuboid leftWall(Point(-totalW / 2, -3, 0), totalH, totalL, t); leftWall.draw();
+
+	// 2. الجدار الأمامي مع فتحة الباب
+	float sideWallW = (totalW - doorW) / 2.0f;
+	float sideWallPosX = (totalW / 2.0f) - (sideWallW / 2.0f);
+
+	glColor3f(0.4f, 0.4f, 0.4f);
+	Cuboid frontLeft(Point(-sideWallPosX, -3, totalL / 2), totalH, t, sideWallW); frontLeft.draw();
+	Cuboid frontRight(Point(sideWallPosX, -3, totalL / 2), totalH, t, sideWallW); frontRight.draw();
+
+	float topPieceH = totalH - doorH;
+	Cuboid frontTop(Point(0, -3 + doorH, totalL / 2), topPieceH, t, doorW); frontTop.draw();
+
+	// 3. إضافة اسم المعرض MWM فوق الباب
+	// ملاحظة: قمت بتقديم النص قليلاً (totalL/2 + 10) حتى لا يتداخل مع الجدار
+	glColor3f(1.0f, 0.9f, 0.0f); // لون ذهبي للنص
+	drawStrokeText("MWM", -70, doorH + 9, totalL / 2 + 10, 0.4f);
+}
+
+
+
+
 // Global variables
 Point center = Point(0, -3, 0);
 Texture texture;
@@ -39,12 +139,14 @@ const float g_fNear = 1;
 const float g_fFar = 1000000000.0f;
 color3f g_background;
 GLuint displayListID;
-Cuboid buildingStructure(Point(0, 0, 0), 100, 630, 300);
+//Cuboid buildingStructure(Point(0, 0, 0), 100, 630, 300);
 Camera camera;
 bool g_mouseCaptured = false;
 int g_lastMouseX = 0;
 int g_lastMouseY = 0;
 float g_mouseSensitivity = 0.0025f;
+Door mainDoor;
+Lighting sceneLighting;
 
 
 void drawGround()
@@ -87,15 +189,27 @@ int main(int argc, char** argv)
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// لا نغير إعداداتك الأصلية
 	glClearColor(g_background.r, g_background.g, g_background.b, 1.0);
 	glLoadIdentity();
-	//glTranslatef(0, 0, -10);
 	camera.Refresh();
 
-	//setupLighting();
-	//setupShadow();
 	drawGround();
+	drawStreet();
+	// رسم الأشياء الثابتة
 	glCallList(displayListID);
+
+	// --- الإضافات الاحترافية الجديدة ---
+
+	// العمود الأيسر يستخدم الضوء رقم 1
+	sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
+
+	// العمود الأيمن يستخدم الضوء رقم 2 (لاحظ الفرق)
+	sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
+
+
+	// 1. رسم الباب المنزلق (شفاف وأوتوماتيكي)
+	mainDoor.draw();
 
 	glutSwapBuffers();
 }
@@ -108,15 +222,21 @@ void idle()
 
 void timer(int value)
 {
-	glutTimerFunc(1000 / 30, timer, 0);	//call the timer again each 1 millisecond
+	float cx, cy, cz;
+	camera.GetPos(cx, cy, cz); // جلب موقع الكاميرا الحالي
 
+	// تحديث حالة الباب بناءً على موقع الكاميرا
+	mainDoor.update(cx, cz);
+
+	glutPostRedisplay();
+	glutTimerFunc(1000 / 60, timer, 0);
 }
 //initialize some variables
 void init()
 {
-	g_background.r = 255;
-	g_background.g = 255;
-	g_background.b = 255;
+	g_background.r = 0.05;
+	g_background.g = 0.05;
+	g_background.b = 0.15;
 
 	//load textures here
 
@@ -125,10 +245,12 @@ void init()
 	glNewList(displayListID, GL_COMPILE);
 	//glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
 	glColor3f(1.0f, 0.0f, 0.0f);
-	buildingStructure.draw();
+	drawDetailedBuilding();
+	//buildingStructure.draw();
 	glEndList();
 
 	// transparency
+	glEnable(GL_DEPTH_TEST); // ضروري جداً لرؤية الأجسام ثلاثية الأبعاد صح
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
