@@ -76,13 +76,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\freeglut\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\libraries\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\libraries\freeglut\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib; glu32.lib; freeglut.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,10 +93,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\libraries\freeglut\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\libraries\freeglut\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib; glu32.lib; freeglut.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,10 +108,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\libraries\freeglut\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\libraries\freeglut\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib; glu32.lib; freeglut.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,34 +125,38 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\libraries\freeglut\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\libraries\freeglut\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib; glu32.lib; freeglut.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\CarShow-master\Camera.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Cuboid.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Cylinder.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Lighting.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Point.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Pyramid.cpp" />
-    <ClCompile Include="..\..\CarShow-master\SkyBox.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Sofa.cpp" />
-    <ClCompile Include="..\..\CarShow-master\Texture.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cuboid.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
+    <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="mwm.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Pyramid.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="Sofa.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\CarShow-master\Cuboid.h" />
-    <ClInclude Include="..\..\CarShow-master\Cylinder.h" />
-    <ClInclude Include="..\..\CarShow-master\Door.h" />
-    <ClInclude Include="..\..\CarShow-master\Lighting.h" />
-    <ClInclude Include="..\..\CarShow-master\Point.h" />
-    <ClInclude Include="..\..\CarShow-master\Pyramid.h" />
-    <ClInclude Include="..\..\CarShow-master\Skybox.h" />
-    <ClInclude Include="..\..\CarShow-master\Sofa.h" />
-    <ClInclude Include="..\..\CarShow-master\Texture.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cuboid.h" />
+    <ClInclude Include="Cylinder.h" />
+    <ClInclude Include="Door.h" />
+    <ClInclude Include="Lighting.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Pyramid.h" />
+    <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Sofa.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
