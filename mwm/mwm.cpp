@@ -27,8 +27,8 @@ ShowRoom mwmShowroom;
 // وضعناه عند z = -315 ليكون خلف الجدار الخلفي مباشرة
 // والارتفاع يبدأ من -3.0f لينطبق مع الأرضية
 Elevator myElevator(
-    mwmShowroom.GetElevatorShaftCenter(),
-    mwmShowroom.GetFloorHeight()
+	mwmShowroom.GetElevatorShaftCenter(),
+	mwmShowroom.GetFloorHeight()
 );
 GLuint displayListID;
 bool g_mouseCaptured = false;
@@ -43,29 +43,29 @@ const float g_fFar = 15000.0f;
 
 // التصادم
 void setupCollision() {
-    camera.walls.clear();
-    camera.doorWalls.clear();
-    camera.Doors.clear();
+	camera.walls.clear();
+	camera.doorWalls.clear();
+	camera.Doors.clear();
 
-    // جلب الجدران والمنصات من المعرض
-    camera.walls = mwmShowroom.GetStaticWalls();
+	// جلب الجدران والمنصات من المعرض
+	camera.walls = mwmShowroom.GetStaticWalls();
 
-    // ربط الباب الرئيسي
-    camera.Doors.push_back(&mainDoor);
-    camera.doorWalls.push_back(mwmShowroom.GetMainDoorWall());
+	// ربط الباب الرئيسي
+	camera.Doors.push_back(&mainDoor);
+	camera.doorWalls.push_back(mwmShowroom.GetMainDoorWall());
 }
 
 void drawGround() {
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_2D);
-    glColor3f(0.1f, 0.1f, 0.1f); // أرضية خارجية داكنة للشارع
-    glBegin(GL_QUADS);
-    glVertex3f(-5000.0f, -3.1f, -5000.0f);
-    glVertex3f(5000.0f, -3.1f, -5000.0f);
-    glVertex3f(5000.0f, -3.1f, 5000.0f);
-    glVertex3f(-5000.0f, -3.1f, 5000.0f);
-    glEnd();
-    glEnable(GL_LIGHTING);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.1f, 0.1f, 0.1f); // أرضية خارجية داكنة للشارع
+	glBegin(GL_QUADS);
+	glVertex3f(-5000.0f, -3.1f, -5000.0f);
+	glVertex3f(5000.0f, -3.1f, -5000.0f);
+	glVertex3f(5000.0f, -3.1f, 5000.0f);
+	glVertex3f(-5000.0f, -3.1f, 5000.0f);
+	glEnd();
+	glEnable(GL_LIGHTING);
 }
 
 void drawTree(float x, float z) {
@@ -92,152 +92,152 @@ void drawTree(float x, float z) {
 }
 
 void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
-    camera.Refresh();
-    drawGround();
+	camera.Refresh();
+	drawGround();
 
-    // رسم محتويات المعرض الثابتة
-    glCallList(displayListID);
-    myElevator.draw();
+	// رسم محتويات المعرض الثابتة
+	glCallList(displayListID);
+	myElevator.draw();
 
-    // إضاءة الشوارع (تحتاج تحديث مستمر للإضاءة)
-    sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
-    sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
+	// إضاءة الشوارع (تحتاج تحديث مستمر للإضاءة)
+	sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
+	sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
 
-    // رسم الباب المتحرك
-    mainDoor.draw();
+	// رسم الباب المتحرك
+	mainDoor.draw();
 
-    glutSwapBuffers();
+	glutSwapBuffers();
 }
 
 void timer(int value) {
-    myElevator.update(camera); // تحديث موقع المصعد والكاميرا معاً
-    camera.ApplyGravity();
+	myElevator.update(camera); // تحديث موقع المصعد والكاميرا معاً
+	camera.ApplyGravity();
 
-    float cx, cy, cz;
-    camera.GetPos(cx, cy, cz);
-    mainDoor.update(cx, cz); // فتح الباب عند اقتراب الكاميرا
+	float cx, cy, cz;
+	camera.GetPos(cx, cy, cz);
+	mainDoor.update(cx, cz); // فتح الباب عند اقتراب الكاميرا
 
-    glutPostRedisplay();
-    glutTimerFunc(16, timer, 0);
+	glutPostRedisplay();
+	glutTimerFunc(16, timer, 0);
 }
 
 void init() {
-    glClearColor(0.02f, 0.02f, 0.05f, 1.0f); // سماء ليلية غامقة جداً
+	glClearColor(0.02f, 0.02f, 0.05f, 1.0f); // سماء ليلية غامقة جداً
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_NORMALIZE);
-    glShadeModel(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+	glShadeModel(GL_SMOOTH);
 
-    // إعداد إضاءة خافتة عامة (Ambient)
-    GLfloat ambientColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+	// إعداد إضاءة خافتة عامة (Ambient)
+	GLfloat ambientColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
-    // إنشاء الـ Display List
-    displayListID = glGenLists(1);
-    glNewList(displayListID, GL_COMPILE);
-    mwmShowroom.draw();
-    glEndList();
+	// إنشاء الـ Display List
+	displayListID = glGenLists(1);
+	glNewList(displayListID, GL_COMPILE);
+	mwmShowroom.draw();
+	glEndList();
 
-    setupCollision();
+	setupCollision();
 
-    // وضع الكاميرا في الخارج لمشاهدة المعرض من بعيد عند البدء
-    camera.SetPos(0, 20, 1200);
+	// وضع الكاميرا في الخارج لمشاهدة المعرض من بعيد عند البدء
+	camera.SetPos(0, 20, 1200);
 }
 
 void reshape(int w, int h) {
-    if (h == 0) h = 1;
-    g_iWidth = w; g_iHeight = h;
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, (float)w / h, g_fNear, g_fFar);
-    glMatrixMode(GL_MODELVIEW);
+	if (h == 0) h = 1;
+	g_iWidth = w; g_iHeight = h;
+	glViewport(0, 0, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0, (float)w / h, g_fNear, g_fFar);
+	glMatrixMode(GL_MODELVIEW);
 }
 
 static void keyboardCallback(unsigned char key, int x, int y) {
-    float step = 15.0f;
-    switch (key) {
-    case 27: exit(0); break;
-    case ' ': camera.HandleSpaceTap(); break;
-    case 'w': case 'W': camera.Move(step); break;
-    case 's': case 'S': camera.Move(-step); break;
-    case 'a': case 'A': camera.Strafe(step); break;
-    case 'd': case 'D': camera.Strafe(-step); break;
-    case 'q': case 'Q': camera.Fly(step); break;
-    case 'e': case 'E': camera.Fly(-step); break;
-    case 'l': case 'L':
-        myElevator.callElevator(
-            camera,
-            mwmShowroom.GetElevatorShaftCenter().z
-        );
-        break;
-    }
+	float step = 15.0f;
+	switch (key) {
+	case 27: exit(0); break;
+	case ' ': camera.HandleSpaceTap(); break;
+	case 'w': case 'W': camera.Move(step); break;
+	case 's': case 'S': camera.Move(-step); break;
+	case 'a': case 'A': camera.Strafe(step); break;
+	case 'd': case 'D': camera.Strafe(-step); break;
+	case 'q': case 'Q': camera.Fly(step); break;
+	case 'e': case 'E': camera.Fly(-step); break;
+	case 'l': case 'L':
+		myElevator.callElevator(
+			camera,
+			mwmShowroom.GetElevatorShaftCenter().z
+		);
+		break;
+	}
 }
 
 static void specialKeysCallback(int key, int x, int y) {
-    float step = 20.0f;
-    switch (key) {
-    case GLUT_KEY_UP:    camera.Move(step); break;
-    case GLUT_KEY_DOWN:  camera.Move(-step); break;
-    case GLUT_KEY_LEFT:  camera.Strafe(step); break;
-    case GLUT_KEY_RIGHT: camera.Strafe(-step); break;
-    }
+	float step = 20.0f;
+	switch (key) {
+	case GLUT_KEY_UP:    camera.Move(step); break;
+	case GLUT_KEY_DOWN:  camera.Move(-step); break;
+	case GLUT_KEY_LEFT:  camera.Strafe(step); break;
+	case GLUT_KEY_RIGHT: camera.Strafe(-step); break;
+	}
 }
 
 static void mouseMove(int x, int y) {
-    if (!g_mouseCaptured) return;
+	if (!g_mouseCaptured) return;
 
-    int dx = x - g_iWidth / 2;
-    int dy = y - g_iHeight / 2;
+	int dx = x - g_iWidth / 2;
+	int dy = y - g_iHeight / 2;
 
-    if (dx != 0 || dy != 0) {
-        camera.RotateYaw(dx * g_mouseSensitivity);
-        camera.RotatePitch(-dy * g_mouseSensitivity);
-        // إعادة الماوس للمركز لمنع خروجه من الشاشة
-        glutWarpPointer(g_iWidth / 2, g_iHeight / 2);
-    }
-    glutPostRedisplay();
+	if (dx != 0 || dy != 0) {
+		camera.RotateYaw(dx * g_mouseSensitivity);
+		camera.RotatePitch(-dy * g_mouseSensitivity);
+		// إعادة الماوس للمركز لمنع خروجه من الشاشة
+		glutWarpPointer(g_iWidth / 2, g_iHeight / 2);
+	}
+	glutPostRedisplay();
 }
 
 static void mouseButton(int button, int state, int x, int y) {
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        g_mouseCaptured = !g_mouseCaptured; // تبديل وضع الماوس (Lock/Unlock)
-        if (g_mouseCaptured) {
-            glutSetCursor(GLUT_CURSOR_NONE);
-            glutWarpPointer(g_iWidth / 2, g_iHeight / 2);
-        }
-        else {
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-        }
-    }
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		g_mouseCaptured = !g_mouseCaptured; // تبديل وضع الماوس (Lock/Unlock)
+		if (g_mouseCaptured) {
+			glutSetCursor(GLUT_CURSOR_NONE);
+			glutWarpPointer(g_iWidth / 2, g_iHeight / 2);
+		}
+		else {
+			glutSetCursor(GLUT_CURSOR_INHERIT);
+		}
+	}
 }
 
 int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(g_iWidth, g_iHeight);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("MWM Luxury Car Showroom");
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+	glutInitWindowSize(g_iWidth, g_iHeight);
+	glutInitWindowPosition(100, 100);
+	glutCreateWindow("MWM Luxury Car Showroom");
 
-    init();
+	init();
 
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutIdleFunc(display);
-    glutTimerFunc(16, timer, 0);
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
+	glutIdleFunc(display);
+	glutTimerFunc(16, timer, 0);
 
-    glutKeyboardFunc(keyboardCallback);
-    glutSpecialFunc(specialKeysCallback);
-    glutPassiveMotionFunc(mouseMove);
-    glutMouseFunc(mouseButton);
+	glutKeyboardFunc(keyboardCallback);
+	glutSpecialFunc(specialKeysCallback);
+	glutPassiveMotionFunc(mouseMove);
+	glutMouseFunc(mouseButton);
 
-    glutMainLoop();
-    return 0;
+	glutMainLoop();
+	return 0;
 }

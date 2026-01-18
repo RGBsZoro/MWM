@@ -157,7 +157,7 @@ void ShowRoom::drawMWMName() {
     glTranslatef(-85, 165, 755); // تم رفعه قليلاً ليتوسط المساحة فوق الباب
     glScalef(0.6f, 0.6f, 0.6f);
     glLineWidth(5);
-    const char* text = "MWM LUXURY";
+    const char* text = "MWM";
     for (const char* c = text; *c != '\0'; c++)
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
     glEnable(GL_LIGHTING);
@@ -199,7 +199,46 @@ void ShowRoom::drawBuildingBase() {
     Cuboid(Point(posX, -3, totalL / 2), floorHeight, t, sideWallW).draw();
     Cuboid(Point(0, doorH - 3, totalL / 2), floorHeight - doorH, t, doorW).draw();
 }
+void ShowRoom::drawTree(float x, float z) {
+    // 1. جذع الشجرة (بني)
+    glColor3ub(101, 67, 33);
+    Cuboid trunk(Point(x, 0.0f, z), 50.0f, 12.0f, 12.0f);
+    trunk.draw();
 
+    // 2. أوراق الشجرة (أخضر متدرج)
+    // الطبقة السفلية الكبيرة
+    glColor3ub(34, 139, 34);
+    Cuboid leaves1(Point(x, 45.0f, z), 40.0f, 70.0f, 70.0f);
+    leaves1.draw();
+
+    // الطبقة الوسطى
+    glColor3ub(46, 170, 46);
+    Cuboid leaves2(Point(x, 75.0f, z), 35.0f, 55.0f, 55.0f);
+    leaves2.draw();
+
+    // الطبقة العلوية (القمة)
+    glColor3ub(60, 200, 60);
+    Cuboid leaves3(Point(x, 100.0f, z), 25.0f, 35.0f, 35.0f);
+    leaves3.draw();
+}
+
+void ShowRoom::drawOppositeSideline() {
+    float treeZ = 1450.0f;
+    float totalLength = 3000.0f;
+
+    // رسم رصيف بسيط تحت الشجر
+    glColor3ub(50, 50, 50); // رمادي غامق
+    Cuboid curb(Point(0, -1, treeZ), 2, 80, totalLength);
+    curb.draw();
+
+    // توزيع الأشجار على طول الرصيف
+    float startX = -totalLength / 2;
+    float step = 300.0f; // المسافة بين الشجر
+
+    for (float x = startX + 100; x < totalLength / 2; x += step) {
+        drawTree(x, treeZ);
+    }
+}
 Point ShowRoom::GetElevatorShaftCenter() const {
     return Point(
         0.0f,
@@ -232,6 +271,9 @@ void ShowRoom::drawStreet() {
 // --- 7. دالة الرسم الشاملة ---
 void ShowRoom::draw() {
     drawStreet();
+
+    // --- إضافة الأشجار على الطرف الآخر من الشارع ---
+    drawOppositeSideline();
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 

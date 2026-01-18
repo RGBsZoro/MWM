@@ -14,6 +14,7 @@ public:
     void drawPodiums();
     float GetBackWallZ() { return -totalL / 2.0f; }
     void drawCeilingLightRing(Point p);
+    void drawOppositeSideline();
     Point GetElevatorShaftCenter() const;
     float GetElevatorDoorWidth() const;
     float GetFloorHeight() const;
@@ -42,6 +43,8 @@ private:
     //void drawElevator();
     //void drawOffice();
     void drawBuildingBase();
+
+    void drawTree(float x, float z);
 
     // قياسات المعرض
     float totalW = 1500.0f;
