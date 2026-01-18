@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Door.h"
 #include "Lighting.h"
+#include "FamilyCar.h"
 #ifndef GL_LIGHT1
 #define GL_LIGHT0 0x4000
 #define GL_LIGHT1 0x4001
@@ -34,6 +35,46 @@ static void mouseButton(int button, int state, int x, int y);
 
 
 
+void drawTree(float x, float z) {
+	// 1. جذع الشجرة (بني)
+	glColor3ub(101, 67, 33);
+	Cuboid trunk(Point(x, 0.0f, z), 50.0f, 12.0f, 12.0f);
+	trunk.draw();
+
+	// 2. أوراق الشجرة (أخضر متدرج)
+	// الطبقة السفلية الكبيرة
+	glColor3ub(34, 139, 34);
+	Cuboid leaves1(Point(x, 45.0f, z), 40.0f, 70.0f, 70.0f);
+	leaves1.draw();
+
+	// الطبقة الوسطى
+	glColor3ub(46, 170, 46);
+	Cuboid leaves2(Point(x, 75.0f, z), 35.0f, 55.0f, 55.0f);
+	leaves2.draw();
+
+	// الطبقة العلوية (القمة)
+	glColor3ub(60, 200, 60);
+	Cuboid leaves3(Point(x, 100.0f, z), 25.0f, 35.0f, 35.0f);
+	leaves3.draw();
+}
+
+void drawOppositeSideline() {
+	float treeZ = 1450.0f;
+	float totalLength = 3000.0f;
+
+	// رسم رصيف بسيط تحت الشجر
+	glColor3ub(50, 50, 50); // رمادي غامق
+	Cuboid curb(Point(0, -1, treeZ), 2, 80, totalLength);
+	curb.draw();
+
+	// توزيع الأشجار على طول الرصيف
+	float startX = -totalLength / 2;
+	float step = 300.0f; // المسافة بين الشجر
+
+	for (float x = startX + 100; x < totalLength / 2; x += step) {
+		drawTree(x, treeZ);
+	}
+}
 
 void drawStreet() {
 	float startZ = 750.0f; // بداية الرصيف من عند جدار المعرض الأمامي
@@ -86,7 +127,7 @@ void drawStrokeText(const char* string, float x, float y, float z, float scale) 
 
 void drawDetailedBuilding() {
 	float totalW = 1500.0f;
-	float totalH = 200.0f;
+	float totalH = 250.0f;
 	float totalL = 1500.0f;
 	float t = 5.0f;
 
@@ -123,7 +164,7 @@ void drawDetailedBuilding() {
 	// 3. إضافة اسم المعرض MWM فوق الباب
 	// ملاحظة: قمت بتقديم النص قليلاً (totalL/2 + 10) حتى لا يتداخل مع الجدار
 	glColor3f(1.0f, 0.9f, 0.0f); // لون ذهبي للنص
-	drawStrokeText("MWM", -70, doorH + 9, totalL / 2 + 10, 0.4f);
+	drawStrokeText("MWM", -70, doorH + 20, totalL / 2 + 10, 0.4f);
 }
 
 
@@ -147,6 +188,7 @@ int g_lastMouseY = 0;
 float g_mouseSensitivity = 0.0025f;
 Door mainDoor;
 Lighting sceneLighting;
+FamilyCar tahoe(Point(0, 0, 0), 140.0f, 65.0f, 14.0f, 50.0f);
 
 
 void drawGround()
@@ -196,8 +238,13 @@ void display()
 
 	drawGround();
 	drawStreet();
+
+	// --- إضافة الأشجار على الطرف الآخر من الشارع ---
+	drawOppositeSideline();
 	// رسم الأشياء الثابتة
 	glCallList(displayListID);
+
+	tahoe.draw();
 
 	// --- الإضافات الاحترافية الجديدة ---
 
