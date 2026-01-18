@@ -49,6 +49,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Elevator.cpp">
+    <ClCompile Include="CarDoor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FamilyCar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -90,6 +94,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Elevator.h">
+    <ClInclude Include="Wheel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CarDoor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FamilyCar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

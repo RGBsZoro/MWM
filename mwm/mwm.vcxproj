@@ -136,9 +136,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CarDoor.cpp" />
     <ClCompile Include="Cuboid.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Elevator.cpp" />
+    <ClCompile Include="FamilyCar.cpp" />
     <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="mwm.cpp" />
     <ClCompile Include="Point.cpp" />
@@ -150,10 +152,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CarDoor.h" />
     <ClInclude Include="Cuboid.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Elevator.h" />
+    <ClInclude Include="FamilyCar.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Pyramid.h" />
@@ -162,6 +166,7 @@
     <ClInclude Include="Sofa.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Wheel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
