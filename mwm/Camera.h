@@ -1,20 +1,29 @@
-#ifndef __CAMERA_H__
+﻿#ifndef __CAMERA_H__
 #define __CAMERA_H__
 #define M_PI 3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
 #include <iostream>
 #include <vector>
 #include "Door.h"
+#include "Types.h"  // هنا تم حل مشكلة undefined type Wall
 //#include "Point.h"
 //#include "Elevator.h"
-struct Wall {
-	Point min;//?????? ??????? ?????? ???????? 
-	Point max;//?????? ??????? ?????? ??????? 
+
+enum class MovementMode
+{
+	WALK,
+	FLY
 };
 
 class Camera
 {
 public:
+	const float GRAVITY = -0.98f;      // قوة الجاذبية
+	const float JUMP_FORCE = 14.0f;    // قوة القفز
+	const float MAX_FALL_SPEED = -40.0f;
+	const float STEP_HEIGHT = 12.0f;     // أقصى ارتفاع درجة يمكن تسلقه (للمنصات)
+
+
 	Camera() { Init(); }
 	~Camera() {}
 
@@ -25,15 +34,22 @@ public:
 	void GetDirectionVector(float& x, float& y, float& z);
 	void SetYaw(float angle);
 	void SetPitch(float angle);
+	bool CheckGroundCollision(const Point& newPos);
 	bool CheckCollision(const Point& newPos);
 	bool CheckDoorCollision(const Point& newPos);
+	bool TryStepUp(float nextX, float nextZ);
 	// Navigation
 	void Move(float incr);
+	AABB GetPlayerAABB(const Point& pos);
 	void Strafe(float incr);
+	void HandleSpaceTap();
 	void Fly(float incr);
+	void Jump();
+	void ApplyGravity();
 	void RotateYaw(float angle);
 	void RotatePitch(float angle);
 
+	float m_x, m_y, m_z;   // Position
 	std::vector<Door*> Doors;
 	std::vector<Door*> ElevetorDoors;
 	std::vector<Wall> doorWalls{
@@ -172,7 +188,17 @@ public:
 	//Elevator elevator;
 
 private:
-	float m_x, m_y, m_z;   // Position
+	// 🔥 الحالة الحركية
+	MovementMode m_mode;
+	int m_lastSpaceTapTime;
+
+	// 🔥 فيزياء
+	float m_verticalVelocity;
+	bool m_isGrounded;
+
+	const float GROUND_Y = -2.0f;// مستوى الأرض (نفس drawGround)
+	const float PLAYER_RADIUS = 2.0f;   // عرض اللاعب
+	const float PLAYER_HEIGHT = 10.0f;  // ارتفاع عين اللاعب
 	float m_lx, m_ly, m_lz; // Direction vector of where we are looking at
 	float m_yaw, m_pitch; // Various rotation angles
 	float m_strafe_lx, m_strafe_lz; // Always 90 degree to direction vector

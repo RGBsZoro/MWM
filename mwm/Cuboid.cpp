@@ -257,3 +257,22 @@ void Cuboid::drawWithTextureOnOneFace(GLuint textureID, const std::string& face,
 
     glDisable(GL_TEXTURE_2D);
 }
+
+Wall Cuboid::ToWall() const
+{
+    Wall w;
+
+    w.min = Point(
+        center.x - width / 2,
+        center.y,
+        center.z - length / 2
+    );
+
+    w.max = Point(
+        center.x + width / 2,
+        center.y + height,
+        center.z + length / 2
+    );
+
+    return w;
+}

@@ -1,186 +1,176 @@
-#include "Camera.h"
-#include <iostream>
-#include <vector>
-#include "GL/glut.h"
-#include "Point.h"
+﻿#include "Camera.h"
+#include <GL/glut.h>
+#include <cmath>
 
-//init values
-void Camera::Init()
-{
-	m_yaw = 0.0;
-	m_pitch = 0.0;
-	SetPos(-5, 4, 12);	//to start over the floor
+void Camera::Init() {
+    m_yaw = 4.44f;
+    m_pitch = 0.0f;
+    m_mode = MovementMode::WALK;
+    m_lastSpaceTapTime = 0;
+    m_verticalVelocity = 0.0f;
+    m_isGrounded = true;
+
+    // موقع البداية الافتراضي
+    SetPos(0.0f, GROUND_Y + PLAYER_HEIGHT, 500.0f);
 }
 
-//invoke each time in the draw function
-void Camera::Refresh()
-{
-	// Camera parameter according to Riegl's co-ordinate system
-	// x/y for flat, z for height
-	m_lx = cos(m_yaw) * cos(m_pitch);
-	m_ly = sin(m_pitch);
-	m_lz = sin(m_yaw) * cos(m_pitch);
+void Camera::Refresh() {
+    m_lx = cos(m_yaw) * cos(m_pitch);
+    m_ly = sin(m_pitch);
+    m_lz = sin(m_yaw) * cos(m_pitch);
 
-	m_strafe_lx = cos(m_yaw - M_PI_2);
-	m_strafe_lz = sin(m_yaw - M_PI_2);
+    m_strafe_lx = cos(m_yaw - M_PI_2);
+    m_strafe_lz = sin(m_yaw - M_PI_2);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(m_x, m_y, m_z, m_x + m_lx, m_y + m_ly, m_z + m_lz, 0.0, 1.0, 0.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(m_x, m_y, m_z, m_x + m_lx, m_y + m_ly, m_z + m_lz, 0.0, 1.0, 0.0);
+}
 
-	//printf("Camera: %f %f %f Direction vector: %f %f %f\n", m_x, m_y, m_z, m_lx, m_ly, m_lz);
+bool Intersect(const AABB& a, const AABB& b) {
+    return (a.min.x <= b.max.x && a.max.x >= b.min.x &&
+        a.min.y <= b.max.y && a.max.y >= b.min.y &&
+        a.min.z <= b.max.z && a.max.z >= b.min.z);
 }
 
 bool Camera::CheckCollision(const Point& newPos) {
-	for (const auto& wall : walls) {
-		if (newPos.x > wall.min.x && newPos.x < wall.max.x &&
-			newPos.y > wall.min.y && newPos.y < wall.max.y &&
-			newPos.z > wall.min.z && newPos.z < wall.max.z) {
-			return true; // ????? ?? ????
-		}
-	}
-	return false; // ?? ???? ?????
+    AABB playerBox = GetPlayerAABB(newPos);
+    for (const auto& wall : walls) {
+        if (Intersect(playerBox, { wall.min, wall.max })) return true;
+    }
+    return false;
 }
+
 bool Camera::CheckDoorCollision(const Point& newPos) {
-	if (newPos.x > doorWalls[0].min.x && newPos.x < doorWalls[0].max.x &&
-		newPos.y > doorWalls[0].min.y && newPos.y < doorWalls[0].max.y &&
-		newPos.z > doorWalls[0].min.z && newPos.z < doorWalls[0].max.z && !Doors[0]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	if (newPos.x > doorWalls[1].min.x && newPos.x < doorWalls[1].max.x &&
-		newPos.y > doorWalls[1].min.y && newPos.y < doorWalls[1].max.y &&
-		newPos.z > doorWalls[1].min.z && newPos.z < doorWalls[1].max.z && !Doors[1]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	if (newPos.x > doorWalls[2].min.x && newPos.x < doorWalls[2].max.x &&
-		newPos.y > doorWalls[2].min.y && newPos.y < doorWalls[2].max.y &&
-		newPos.z > doorWalls[2].min.z && newPos.z < doorWalls[2].max.z && !Doors[2]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	if (newPos.x > doorWalls[5].min.x && newPos.x < doorWalls[5].max.x &&
-		newPos.y > doorWalls[5].min.y && newPos.y < doorWalls[5].max.y &&
-		newPos.z > doorWalls[5].min.z && newPos.z < doorWalls[5].max.z && !Doors[9]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	if (newPos.x > doorWalls[6].min.x && newPos.x < doorWalls[6].max.x &&
-		newPos.y > doorWalls[6].min.y && newPos.y < doorWalls[6].max.y &&
-		newPos.z > doorWalls[6].min.z && newPos.z < doorWalls[6].max.z && !Doors[8]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	if (newPos.x > doorWalls[7].min.x && newPos.x < doorWalls[7].max.x &&
-		newPos.y > doorWalls[7].min.y && newPos.y < doorWalls[7].max.y &&
-		newPos.z > doorWalls[7].min.z && newPos.z < doorWalls[7].max.z && !Doors[7]->isOpen) {
-		return true; // ????? ?? ????
-	}
-	return false; // ?? ???? ??????
-}
-//to place a position of the camera
-void Camera::SetPos(float x, float y, float z)
-{
-	m_x = x;
-	m_y = y;
-	m_z = z;
-
-	Refresh();
+    AABB playerBox = GetPlayerAABB(newPos);
+    for (size_t i = 0; i < doorWalls.size(); i++) {
+        if (i < Doors.size() && Doors[i] != nullptr && !Doors[i]->isOpen) {
+            if (Intersect(playerBox, { doorWalls[i].min, doorWalls[i].max })) return true;
+        }
+    }
+    return false;
 }
 
-//to obtain the position of camera (for debugging)
-void Camera::GetPos(float& x, float& y, float& z)
-{
-	x = m_x;
-	y = m_y;
-	z = m_z;
+bool Camera::CheckGroundCollision(const Point& newPos) {
+    return newPos.y < GROUND_Y + PLAYER_HEIGHT;
 }
 
-//to obtain the direction of camera (for debugging)
-void Camera::GetDirectionVector(float& x, float& y, float& z)
-{
-	x = m_lx;
-	y = m_ly;
-	z = m_lz;
+// دالة التسلق: تحاول رفع اللاعب تدريجياً عند الاصطدام بحافة
+bool Camera::TryStepUp(float nextX, float nextZ) {
+    for (float h = 1.0f; h <= STEP_HEIGHT; h += 1.0f) {
+        Point testPos(nextX, m_y + h, nextZ);
+        if (!CheckCollision(testPos) && !CheckDoorCollision(testPos)) {
+            m_x = nextX;
+            m_z = nextZ;
+            m_y += h; // الصعود للدرجة
+            return true;
+        }
+    }
+    return false;
 }
 
-//move the camera position
 void Camera::Move(float incr) {
-	float lx = cos(m_yaw) * cos(m_pitch);
-	float ly = sin(m_pitch);
-	float lz = sin(m_yaw) * cos(m_pitch);
+    float nextX = m_x + incr * m_lx;
+    float nextZ = m_z + incr * m_lz;
+    Point nextPos(nextX, m_y, nextZ);
 
-	Point newPos(m_x + incr * lx, m_y + incr * ly, m_z + incr * lz);
-
-	// ?????? ?? ???????? ?? ??????? ????????
-	if (!CheckCollision(newPos) && !CheckDoorCollision(newPos)) {
-		m_x = newPos.x;
-		m_y = newPos.y;
-		m_z = newPos.z;
-	}
-	//std::cout << "x = " << m_x << " " << " y = " << m_y << " " << " z = " << m_z << std::endl;
-	Refresh();
+    if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
+        m_x = nextX;
+        m_z = nextZ;
+        if (m_mode == MovementMode::FLY) m_y += incr * m_ly;
+    }
+    else if (m_mode == MovementMode::WALK) {
+        TryStepUp(nextX, nextZ);
+    }
+    Refresh();
 }
 
 void Camera::Strafe(float incr) {
-	float newX = m_x + incr * m_strafe_lx;
-	float newZ = m_z + incr * m_strafe_lz;
+    float nextX = m_x + incr * m_strafe_lx;
+    float nextZ = m_z + incr * m_strafe_lz;
+    Point nextPos(nextX, m_y, nextZ);
 
-	Point newPos(newX, m_y, newZ);
+    if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
+        m_x = nextX;
+        m_z = nextZ;
+    }
+    else if (m_mode == MovementMode::WALK) {
+        TryStepUp(nextX, nextZ);
+    }
+    Refresh();
+}
 
-	// ?????? ?? ???????? ?? ??????? ????????
-	if (!CheckCollision(newPos) && !CheckDoorCollision(newPos)) {
-		m_x = newX;
-		m_z = newZ;
-	}
+void Camera::ApplyGravity() {
+    if (m_mode == MovementMode::FLY) return;
 
-	//std::cout << "x = " << m_x << " " << " y = " << m_y << " " << " z = " << m_z << std::endl;
+    m_verticalVelocity += GRAVITY;
+    if (m_verticalVelocity < MAX_FALL_SPEED) m_verticalVelocity = MAX_FALL_SPEED;
 
+    Point newPos(m_x, m_y + m_verticalVelocity, m_z);
 
-	Refresh();
+    // فحص الأرضية الأساسية
+    if (CheckGroundCollision(newPos)) {
+        m_y = GROUND_Y + PLAYER_HEIGHT;
+        m_verticalVelocity = 0.0f;
+        m_isGrounded = true;
+    }
+    // فحص الوقوف فوق جدار أو منصة (Collision below feet)
+    else if (CheckCollision(newPos) || CheckDoorCollision(newPos)) {
+        m_verticalVelocity = 0.0f;
+        m_isGrounded = true;
+    }
+    else {
+        // حالة السقوط الحر
+        m_y = newPos.y;
+        m_isGrounded = false;
+    }
+    Refresh();
+}
+
+void Camera::Jump() {
+    if (m_isGrounded && m_mode == MovementMode::WALK) {
+        m_verticalVelocity = JUMP_FORCE;
+        m_isGrounded = false;
+    }
+}
+
+void Camera::HandleSpaceTap() {
+    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+    if (currentTime - m_lastSpaceTapTime < 300) {
+        m_mode = (m_mode == MovementMode::WALK) ? MovementMode::FLY : MovementMode::WALK;
+        if (m_mode == MovementMode::WALK) m_y = GROUND_Y + PLAYER_HEIGHT;
+        m_verticalVelocity = 0;
+    }
+    else {
+        Jump();
+    }
+    m_lastSpaceTapTime = currentTime;
+}
+
+AABB Camera::GetPlayerAABB(const Point& pos) {
+    AABB box;
+    box.min = Point(pos.x - PLAYER_RADIUS, pos.y - PLAYER_HEIGHT, pos.z - PLAYER_RADIUS);
+    box.max = Point(pos.x + PLAYER_RADIUS, pos.y + 2.0f, pos.z + PLAYER_RADIUS);
+    return box;
 }
 
 void Camera::Fly(float incr) {
-	Point newPos(m_x, m_y + incr, m_z);
-
-	// ?????? ?? ???????? ?? ??????? ????????
-	if (!CheckCollision(newPos) && !CheckDoorCollision(newPos)) {
-		m_y = newPos.y;
-	}
-
-	Refresh();
+    if (m_mode == MovementMode::FLY) {
+        m_y += incr;
+        Refresh();
+    }
 }
 
-//pitch, yaw, roll functions
-
-void Camera::RotateYaw(float angle)
-{
-	m_yaw += angle;
-
-	Refresh();
+void Camera::RotateYaw(float angle) { m_yaw += angle; Refresh(); }
+void Camera::RotatePitch(float angle) {
+    m_pitch += angle;
+    if (m_pitch < -1.5f) m_pitch = -1.5f;
+    if (m_pitch > 1.5f) m_pitch = 1.5f;
+    Refresh();
 }
 
-void Camera::RotatePitch(float angle)
-{
-	const float limit = 89.0 * M_PI / 180.0;
-
-	m_pitch += angle;
-
-	if (m_pitch < -limit)
-		m_pitch = -limit;
-
-	if (m_pitch > limit)
-		m_pitch = limit;
-
-	Refresh();
-}
-
-void Camera::SetYaw(float angle)
-{
-	m_yaw = angle;
-
-	Refresh();
-}
-
-void Camera::SetPitch(float angle)
-{
-	m_pitch = angle;
-
-	Refresh();
-}
+void Camera::SetPos(float x, float y, float z) { m_x = x; m_y = y; m_z = z; Refresh(); }
+void Camera::GetPos(float& x, float& y, float& z) { x = m_x; y = m_y; z = m_z; }
+void Camera::GetDirectionVector(float& x, float& y, float& z) { x = m_lx; y = m_ly; z = m_lz; }
+void Camera::SetYaw(float angle) { m_yaw = angle; Refresh(); }
+void Camera::SetPitch(float angle) { m_pitch = angle; Refresh(); }
