@@ -42,16 +42,13 @@ int g_iHeight = 768;
 const float g_fNear = 1.0f;
 const float g_fFar = 15000.0f;
 
-// التصادم
 void setupCollision() {
 	camera.walls.clear();
 	camera.doorWalls.clear();
 	camera.Doors.clear();
 
-	// جلب الجدران والمنصات من المعرض
 	camera.walls = mwmShowroom.GetStaticWalls();
 
-	// ربط الباب الرئيسي
 	camera.Doors.push_back(&mainDoor);
 	camera.doorWalls.push_back(mwmShowroom.GetMainDoorWall());
 }
@@ -59,7 +56,7 @@ void setupCollision() {
 void drawGround() {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.1f, 0.1f, 0.1f); // أرضية خارجية داكنة للشارع
+	glColor3f(0.1f, 0.1f, 0.1f); 
 	glBegin(GL_QUADS);
 	glVertex3f(-5000.0f, -3.1f, -5000.0f);
 	glVertex3f(5000.0f, -3.1f, -5000.0f);
@@ -70,23 +67,19 @@ void drawGround() {
 }
 
 void drawTree(float x, float z) {
-	// 1. جذع الشجرة (بني)
 	glColor3ub(101, 67, 33);
 	Cuboid trunk(Point(x, 0.0f, z), 50.0f, 12.0f, 12.0f);
 	trunk.draw();
 
-	// 2. أوراق الشجرة (أخضر متدرج)
-	// الطبقة السفلية الكبيرة
+
 	glColor3ub(34, 139, 34);
 	Cuboid leaves1(Point(x, 45.0f, z), 40.0f, 70.0f, 70.0f);
 	leaves1.draw();
 
-	// الطبقة الوسطى
 	glColor3ub(46, 170, 46);
 	Cuboid leaves2(Point(x, 75.0f, z), 35.0f, 55.0f, 55.0f);
 	leaves2.draw();
 
-	// الطبقة العلوية (القمة)
 	glColor3ub(60, 200, 60);
 	Cuboid leaves3(Point(x, 100.0f, z), 25.0f, 35.0f, 35.0f);
 	leaves3.draw();
@@ -98,7 +91,6 @@ void setDriverSeatCamera(CarBMW& car) {
 
 	float rad = car.rotation * 3.14159f / 180.0f;
 
-	// موضع الكاميرا داخل السيارة
 	Point camLocal(-40, 95, 35);
 
 	float camX = car.position.x +
@@ -107,7 +99,6 @@ void setDriverSeatCamera(CarBMW& car) {
 		camLocal.x * sin(rad) + camLocal.z * cos(rad);
 	float camY = car.position.y + camLocal.y;
 
-	// نقطة النظر للأمام
 	float lookX = camX + cos(rad) * 300;
 	float lookZ = camZ + sin(rad) * 300;
 	float lookY = camY;
@@ -122,7 +113,6 @@ void setDriverSeatCamera(CarBMW& car) {
 void setupBMWSpotLight(const CarBMW& car) {
 	glEnable(GL_LIGHT1);
 
-	// موضع الضوء (فوق السيارة)
 	GLfloat lightPos[] = {
 		car.position.x,
 		car.position.y + 300.0f,
@@ -130,10 +120,8 @@ void setupBMWSpotLight(const CarBMW& car) {
 		1.0f
 	};
 
-	// اتجاه الضوء (للأسفل)
 	GLfloat lightDir[] = { 0.0f, -1.0f, 0.0f };
 
-	// ألوان الضوء
 	GLfloat ambient[] = { 0.05f, 0.05f, 0.05f, 1.0f };
 	GLfloat diffuse[] = { 0.9f,  0.9f,  0.85f, 1.0f };
 	GLfloat specular[] = { 1.0f,  1.0f,  1.0f,  1.0f };
@@ -145,9 +133,8 @@ void setupBMWSpotLight(const CarBMW& car) {
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
 
-	// خصائص السبوت
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 25.0f);    // زاوية الإضاءة
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 18.0f);  // تركيز الإضاءة
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 25.0f);    
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 18.0f);  
 }
 
 void display() {
@@ -158,17 +145,13 @@ void display() {
 
 	drawGround();
 
-	// محتويات المعرض
 	glCallList(displayListID);
 
 	tahoe.draw();
 	myElevator.draw();
 
-	// 🔴 أعمدة الإنارة فقط في الليل
-	//if (timeOfDay.getMode() == NIGHT) {
-		sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
-		sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
-	//}
+	sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
+	sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
 
 	mainDoor.draw();
 
@@ -179,32 +162,25 @@ void display() {
 void timer(int value) {
 	myElevator.update(camera);
 
-	// 1. تحديث منطق السيارة (الحركة والفيزياء)
 	tahoe.update();
 
-	// 2. إذا كان المستخدم يقود، اجعل الكاميرا تتبع السيارة
 	if (tahoe.isDriving) {
 		float angleRad = tahoe.carRotation * (3.14159f / 180.0f);
 
-		// حساب موقع السائق بالنسبة لمركز السيارة ودورانها
-		// الإزاحة: 20 وحدة للأمام (X) و 15 وحدة لليسار (Z)
 		float offsetX = 10.0f * cos(angleRad) + 15.0f * sin(angleRad);
 		float offsetZ = -20.0f * sin(angleRad) + 15.0f * cos(angleRad);
 
 		float driverX = tahoe.pos.x + offsetX;
-		float driverY = tahoe.pos.y + 38.0f; // الارتفاع المناسب للرؤية
+		float driverY = tahoe.pos.y + 38.0f; 
 		float driverZ = tahoe.pos.z + offsetZ;
 
 		camera.SetPos(tahoe.pos.x + offsetX, tahoe.pos.y + 38.0f, tahoe.pos.z + offsetZ);
-		// توجيه الكاميرا لتمظر دائماً باتجاه بوز السيارة
 		camera.SetYaw(-angleRad);
 	}
 	else {
-		// الجاذبية تعمل فقط عندما نكون خارج السيارة
 		camera.ApplyGravity();
 	}
 
-	// تحديث فتح الأبواب
 	float cx, cy, cz;
 	camera.GetPos(cx, cy, cz);
 	mainDoor.update(cx, cz);
@@ -221,7 +197,7 @@ void timer(int value) {
 }
 
 void init() {
-	glClearColor(0.02f, 0.02f, 0.05f, 1.0f); // سماء ليلية غامقة جداً
+	glClearColor(0.02f, 0.02f, 0.05f, 1.0f); 
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -234,11 +210,9 @@ void init() {
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	// إعداد إضاءة خافتة عامة (Ambient)
 	GLfloat ambientColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
-	// إنشاء الـ Display List
 	displayListID = glGenLists(1);
 	glNewList(displayListID, GL_COMPILE);
 	mwmShowroom.draw();
@@ -263,8 +237,8 @@ void reshape(int w, int h) {
 
 static void keyboardCallback(unsigned char key, int x, int y) {
 	float step = 15.0f;
-	float carAcceleration = 0.1f; 
-	float turnSpeed = 3.0f;    // سرعة دوران السيارة
+	float carAcceleration = 0.2f; 
+	float turnSpeed = 3.0f;    
 	float cx, cy, cz;
 	camera.GetPos(cx, cy, cz);
 	float dist = sqrt(pow(cx - tahoe.pos.x, 2) + pow(cz - tahoe.pos.z, 2));
@@ -275,7 +249,7 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 
 	case 'r': case 'R': {
 		if (!tahoe.isDriving) {
-			if (dist < 150.0f) { // شرط القرب للركوب
+			if (dist < 150.0f) { 
 				tahoe.isDriving = true;
 				tahoe.isDoorOpen = false;
 			}
@@ -353,7 +327,6 @@ static void mouseMove(int x, int y) {
 	if (dx != 0 || dy != 0) {
 		camera.RotateYaw(dx * g_mouseSensitivity);
 		camera.RotatePitch(-dy * g_mouseSensitivity);
-		// إعادة الماوس للمركز لمنع خروجه من الشاشة
 		glutWarpPointer(g_iWidth / 2, g_iHeight / 2);
 	}
 	glutPostRedisplay();
@@ -361,7 +334,7 @@ static void mouseMove(int x, int y) {
 
 static void mouseButton(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		g_mouseCaptured = !g_mouseCaptured; // تبديل وضع الماوس (Lock/Unlock)
+		g_mouseCaptured = !g_mouseCaptured; 
 		if (g_mouseCaptured) {
 			glutSetCursor(GLUT_CURSOR_NONE);
 			glutWarpPointer(g_iWidth / 2, g_iHeight / 2);

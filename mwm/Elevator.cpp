@@ -1,11 +1,12 @@
 ﻿#include "Elevator.h"
 
 // ================= Constructor =================
+// ================= Constructor =================
 Elevator::Elevator(Point startPos, float targetH)
     : position(startPos),
-    bottomY(startPos.y),              // أرضية الطابق الأرضي
-    topY(startPos.y + targetH),       // أرضية الطابق العلوي
-    currentY(startPos.y),             // يبدأ على الأرض تمامًا
+    bottomY(startPos.y),               // أرضية الطابق الأرضي
+    topY(startPos.y + targetH),        // أرضية الطابق العلوي
+    currentY(startPos.y),              // يبدأ على الأرض تمامًا (تأكد أنها نفس قيمة bottomY)
     speed(1.2f),
     cabinW(420.0f),
     cabinD(650.0f),
@@ -13,7 +14,7 @@ Elevator::Elevator(Point startPos, float targetH)
     doorState(DoorState::CLOSED),
     doorWidth(0.0f),
     maxDoorWidth(380.0f),
-    state(ElevatorState::IDLE)
+    state(ElevatorState::IDLE)         // التأكد من أن الحالة IDLE لكي لا يتحرك عند البداية
 {
 }
 
@@ -170,7 +171,6 @@ void Elevator::drawFloorIndicator() {
 }
 
 // ================= Draw =================
-// في Elevator.cpp - تعديل دالة Draw
 void Elevator::draw() {
 
     // خط Debug عند أرضية المصعد
@@ -184,7 +184,6 @@ void Elevator::draw() {
 
     glPushMatrix();
 
-    // تحريك المصعد بحيث يكون Y = أرضية المصعد
     glTranslatef(position.x, currentY, position.z);
 
     // ===== الكبينة =====
@@ -195,7 +194,6 @@ void Elevator::draw() {
         cabinH, cabinD, cabinW
     ).draw();
 
-    // ===== الأبواب =====
     float doorH = 220.0f;
     glColor3f(0.3f, 0.3f, 0.3f);
 
@@ -209,7 +207,6 @@ void Elevator::draw() {
         doorH, 5, maxDoorWidth / 2 - doorWidth / 2
     ).draw();
 
-    // ===== الداخل =====
     glPushMatrix();
     glTranslatef(0, 0, -cabinD / 2);
     drawCeilingLight();
