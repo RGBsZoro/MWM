@@ -130,7 +130,8 @@ void Elevator::drawCeilingLight() {
     glVertex3f(cabinW / 4, cabinH - 5, -cabinD / 4);
     glVertex3f(cabinW / 4, cabinH - 5, cabinD / 4);
     glVertex3f(-cabinW / 4, cabinH - 5, cabinD / 4);
-    glEnd(); 
+    glEnd();
+
     glEnable(GL_LIGHTING);
 }
 

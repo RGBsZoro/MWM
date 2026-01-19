@@ -6,6 +6,7 @@
 #include <vector>
 #include "Door.h"
 #include "Types.h"  // هنا تم حل مشكلة undefined type Wall
+#include "CarBMW.h"
 //#include "Point.h"
 //#include "Elevator.h"
 
@@ -14,6 +15,12 @@ enum class MovementMode
 	WALK,
 	FLY
 };
+enum CameraMode {
+	FREE,
+	DRIVER
+};
+
+extern CameraMode currentCamera;
 
 class Camera
 {
@@ -22,6 +29,8 @@ public:
 	const float JUMP_FORCE = 14.0f;    // قوة القفز
 	const float MAX_FALL_SPEED = -40.0f;
 	const float STEP_HEIGHT = 12.0f;     // أقصى ارتفاع درجة يمكن تسلقه (للمنصات)
+	Point driverCamPos = Point(-40, 95, 35);  // داخل السيارة
+	Point driverCamLook = Point(200, 95, 0);   // للأمام
 
 
 	Camera() { Init(); }
@@ -41,6 +50,7 @@ public:
 	// Navigation
 	void Move(float incr);
 	AABB GetPlayerAABB(const Point& pos);
+	void setDriverSeatCamera(CarBMW& car);
 	void Strafe(float incr);
 	void HandleSpaceTap();
 	void Fly(float incr);

@@ -1,6 +1,7 @@
 ﻿#include "Camera.h"
 #include <GL/glut.h>
 #include <cmath>
+#include "CarBMW.h"
 
 void Camera::Init() {
     m_yaw = 4.44f;
@@ -82,8 +83,8 @@ void Camera::Move(float incr) {
         if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
             m_x = nextX;
             m_z = nextZ;
-            if (m_mode == MovementMode::FLY)
-                m_y += delta * m_ly;
+            /*if (m_mode == MovementMode::FLY)
+                m_y += delta * m_ly;*/
         }
         else if (m_mode == MovementMode::WALK) {
             TryStepUp(nextX, nextZ);
@@ -117,7 +118,6 @@ void Camera::Strafe(float incr) {
     }
     Refresh();
 }
-
 void Camera::ApplyGravity() {
     if (m_mode == MovementMode::FLY) return;
 
@@ -172,11 +172,47 @@ AABB Camera::GetPlayerAABB(const Point& pos) {
     return box;
 }
 
+void Camera::setDriverSeatCamera(CarBMW& car) {
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    float rad = car.rotation * 3.14159f / 180.0f;
+
+    // تحويل موضع الكاميرا حسب دوران السيارة
+    float camX = car.position.x +
+        driverCamPos.x * cos(rad) - driverCamPos.z * sin(rad);
+
+    float camZ = car.position.z +
+        driverCamPos.x * sin(rad) + driverCamPos.z * cos(rad);
+
+    float camY = car.position.y + driverCamPos.y;
+
+    // نقطة النظر
+    float lookX = car.position.x +
+        driverCamLook.x * cos(rad);
+
+    float lookZ = car.position.z +
+        driverCamLook.x * sin(rad);
+
+    float lookY = camY;
+
+    gluLookAt(
+        camX, camY, camZ,
+        lookX, lookY, lookZ,
+        0, 1, 0
+    );
+}
+
 void Camera::Fly(float incr) {
-    if (m_mode == MovementMode::FLY) {
+    if (m_mode != MovementMode::FLY) return;
+
+    Point newPos(m_x, m_y + incr, m_z);
+
+    if (!CheckCollision(newPos) && !CheckDoorCollision(newPos)) {
         m_y += incr;
-        Refresh();
     }
+
+    Refresh();
 }
 
 void Camera::RotateYaw(float angle) { m_yaw += angle; Refresh(); }
