@@ -3,47 +3,50 @@
 #include <GL/freeglut.h>
 #include "Point.h"
 #include "Cuboid.h"
-#include "Types.h" // الذي أنشأناه سابقاً
+#include "ModelLoader.h"
+#include "CarBMW.h"
+
+
+// هيكل بسيط لبيانات الجدران إذا لم يكن موجوداً في المشروع
 
 class ShowRoom {
 public:
     ShowRoom();
-    
+    CarBMW& GetBMW();
+
+    void drawJaguar(float x, float y, float z, float rotation);
+
+    void drawSimpleCar(Point p, float scale, float r, float g, float b);
+
+    void drawSportsCar(float x, float y, float z, float rotation);
+
     void setupPodiumLighting(int id, float x, float z);
-    void drawModernPodium(float cx, float cz, int id);
-    void drawPodiums();
+    void drawModernPodium(float cx, float cz, int id, int sectionType); // تم إضافة sectionType
+    void drawPodiums(float yOffset); // تم إضافة yOffset
     float GetBackWallZ() { return -totalL / 2.0f; }
     void drawCeilingLightRing(Point p);
     void drawOppositeSideline();
     Point GetElevatorShaftCenter() const;
     float GetElevatorDoorWidth() const;
     float GetFloorHeight() const;
-    //void drawSinglePodium(float x, float z, float w, float l, color3f col);
-    void draw(); // لرسم كل شيء (المبنى + الشارع)
+    void draw();
 
-    // دوال لإرجاع إحداثيات التصادم للكاميرا
     std::vector<Wall> GetStaticWalls();
     Wall GetMainDoorWall();
 
 private:
-    float elevatorY = -3.0f;       // الارتفاع الحالي للمصعد
-    bool movingToTop = false;      // هل المصعد متوجه للأعلى؟
-    float floorHeight = 300.0f;
-    void drawElevatorButton(float yOffset, bool isElevatorHere);
-    // ارتفاع الطابق الثاني (المسافة بين الأرضيتين)
-    void drawMWMName();
-    void drawStreet();
-   
+    CarBMW bmw;
+    ModelLoader audiR8;
+    ModelLoader jaguar;   // ✅ Jaguar
 
-    //void drawBuilding();
-    //void drawPodiums(float x, float z, float w, float l);
-    //void drawCeilingLights();
+    float floorHeight = 300.0f;
+    //void drawElevatorButton(float yOffset, bool isElevatorHere);
+    void drawMWMName();
+    void drawGlassWallBehindDesk();
+    void drawStreet();
     void drawReceptionDesk();
     void drawFloorContent(float yOffset);
-    //void drawElevator();
-    //void drawOffice();
     void drawBuildingBase();
-
     void drawTree(float x, float z);
 
     // قياسات المعرض

@@ -1,82 +1,262 @@
 ﻿#include "ShowRoom.h"
 #include "Cylinder.h"
 #include "Elevator.h"
+#include <cmath>
 
-ShowRoom::ShowRoom() {}
+ShowRoom::ShowRoom()
+    : bmw(Point(0, 0, 0), "Sounds/car-not-starting.wav")
+{
+    audiR8.load("models/r8/r8.obj", "models/r8/r8.mtl");
+    jaguar.load("models/jaguar/jaguar.obj", "models/jaguar/jaguar.mtl");
 
+}
+
+
+void ShowRoom::drawJaguar(float x, float y, float z, float rotation) {
+    glPushMatrix();
+
+    glTranslatef(x, y + 10.0f, z);
+    glRotatef(rotation, 0, 1, 0);
+
+    // غالبًا موديلات السيارات القديمة تكون كبيرة
+    glScalef(0.04f, 0.04f, 0.04f);
+
+    jaguar.draw();  // يستخدم MTL تلقائيًا
+
+    glPopMatrix();
+}
+
+void ShowRoom::drawSimpleCar(Point p, float scale,
+    float r, float g, float b) {
+    glPushMatrix();
+    glTranslatef(p.x, p.y + 8.0f, p.z);
+    glScalef(scale, scale, scale);
+
+    // ---------- جسم السيارة ----------
+    GLfloat bodyMat[] = { r, g, b, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, bodyMat);
+
+    Cuboid(Point(0, 8, 0), 16, 80, 40).draw();
+
+    // ---------- السقف ----------
+    GLfloat roofMat[] = { r * 0.9f, g * 0.9f, b * 0.9f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, roofMat);
+
+    Cuboid(Point(0, 20, 0), 10, 45, 30).draw();
+
+    // ---------- العجلات ----------
+    GLfloat wheelMat[] = { 0.05f, 0.05f, 0.05f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, wheelMat);
+
+    Cylinder wheel;
+    wheel.draw(Point(-28, 4, 18), 6, 6, 6, 20, 1);
+    wheel.draw(Point(28, 4, 18), 6, 6, 6, 20, 1);
+    wheel.draw(Point(-28, 4, -18), 6, 6, 6, 20, 1);
+    wheel.draw(Point(28, 4, -18), 6, 6, 6, 20, 1);
+
+    glPopMatrix();
+}
+
+
+void ShowRoom::drawSportsCar(float x, float y, float z, float rotation) {
+    glPushMatrix();
+    // الموضع المناسب الذي حددته سابقاً
+    glTranslatef(x, y + 1.0f, z);
+    glRotatef(rotation, 0, 1, 0);
+
+    // الحجم المناسب (0.01 * 5.0 = 0.05)
+    glScalef(0.05f, 0.05f, 0.05f);
+
+    // الرسم الآن سيستخدم الألوان من ملف MTL تلقائياً
+    audiR8.draw();
+
+    glPopMatrix();
+}
 // --- 1. إعداد الإضاءة الاحترافية (Spotlights) فوق كل منصة ---
 void ShowRoom::setupPodiumLighting(int id, float x, float z) {
-    GLfloat lightPos[] = { x, totalH - 20.0f, z, 1.0f };
-    GLfloat diffuse[] = { 1.0f, 1.0f, 0.9f, 1.0f }; // ضوء دافئ قليلاً
+    GLfloat lightPos[] = { x, 250.0f, z, 1.0f };
+    GLfloat diffuse[] = { 1.0f, 1.0f, 0.9f, 1.0f };
     GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    int lightSource = GL_LIGHT1 + id;
+    int lightSource = GL_LIGHT1 + (id % 7);
     glEnable(lightSource);
     glLightfv(lightSource, GL_POSITION, lightPos);
     glLightfv(lightSource, GL_DIFFUSE, diffuse);
     glLightfv(lightSource, GL_SPECULAR, specular);
 
-    GLfloat dir[] = { 0, -1, 0 }; // الاتجاه للأسفل نحو السيارة
+    GLfloat dir[] = { 0, -1, 0 };
     glLightfv(lightSource, GL_SPOT_DIRECTION, dir);
     glLightf(lightSource, GL_SPOT_CUTOFF, 45.0f);
     glLightf(lightSource, GL_SPOT_EXPONENT, 20.0f);
 }
 
 // --- 2. رسم المنصة الدائرية المتدرجة ---
-void ShowRoom::drawModernPodium(float cx, float cz, int id) {
+void ShowRoom::drawModernPodium(float cx, float cz, int id, int sectionType) {
     float baseR = 180.0f;
     float tierH = 3.9f;
     Cylinder cycl;
 
+    // ====== Material معدني فاخر ======
     GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat mat_shininess[] = { 80.0f };
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
+    // ====== تحديد لون القسم ======
+    GLfloat sectionColor[3];
+    switch (sectionType) {
+    case 0: // رياضي
+        sectionColor[0] = 1.0f; sectionColor[1] = 0.0f; sectionColor[2] = 0.0f;
+        break;
+    case 1: // كلاسيك
+        sectionColor[0] = 0.0f; sectionColor[1] = 0.4f; sectionColor[2] = 0.8f;
+        break;
+    case 2: // SUV / مرتفعة
+        sectionColor[0] = 0.0f; sectionColor[1] = 1.0f; sectionColor[2] = 0.2f;
+        break;
+    case 3: // دراجات
+        sectionColor[0] = 1.0f; sectionColor[1] = 1.0f; sectionColor[2] = 0.0f;
+        break;
+    default:
+        sectionColor[0] = 0.2f; sectionColor[1] = 0.6f; sectionColor[2] = 1.0f;
+        break;
+    }
+
+    // ====== حلقة LED العلوية (تعريف القسم) ======
+    float ringLocalY = 5.0f;
+    float ringRadius = baseR - 50.0f;
+
+    glDisable(GL_LIGHTING);
+    glColor3fv(sectionColor);
+    cycl.draw(
+        Point(cx, ringLocalY, cz),
+        ringRadius,
+        ringRadius,
+        0.25f,
+        40,
+        5
+    );
+    glEnable(GL_LIGHTING);
+
+    // ====== درجات المنصة ======
     for (int i = 0; i < 3; i++) {
         float r = baseR - (i * 30.0f);
         float y = -3.0f + (i * tierH);
 
-        // حلقة LED زرقاء تحت كل درجة
+        // --- حلقة LED خفيفة تحت الدرجة (لون القسم) ---
         glDisable(GL_LIGHTING);
-        glColor3f(0.0f, 0.4f, 0.8f);
-        cycl.draw(Point(cx, y + 0.2f, cz), r + 2, r + 2, 0.5f, 40, 5);
+        glColor3fv(sectionColor);
+        cycl.draw(
+            Point(cx, y + 0.2f, cz),
+            r + 2,
+            r + 2,
+            0.35f,
+            40,
+            5
+        );
         glEnable(GL_LIGHTING);
 
-        // جسم المنصة (رمادي داكن معدني)
+        // --- جسم المنصة (معدني غامق) ---
         glColor3f(0.12f, 0.12f, 0.12f);
-        cycl.draw(Point(cx, y + tierH, cz), r, r, tierH, 40, 5);
+        cycl.draw(
+            Point(cx, y + tierH, cz),
+            r,
+            r,
+            tierH,
+            40,
+            5
+        );
     }
 
+    // ====== SpotLight علوي ======
     setupPodiumLighting(id, cx, cz);
 }
 
-// --- 3. توزيع المنصات (3 يمين و 3 يسار) مع حلقات السقف ---
-void ShowRoom::drawPodiums() {
+// --- 3. توزيع المنصات بناءً على الطابق (يتم تمرير yOffset لمعرفة الطابق) ---
+void ShowRoom::drawPodiums(float yOffset) {
     float sideX = 400.0f;
     float spacingZ = 450.0f;
-    int podiumID = 0;
+    int baseID = (yOffset > 0) ? 6 : 0;
 
     for (int row = 0; row < 3; row++) {
         float posZ = -450.0f + (row * spacingZ);
 
-        // الجناح الأيمن
-        drawModernPodium(sideX, posZ, podiumID++);
-        drawCeilingLightRing(Point(sideX, totalH - 5, posZ));
+        if (yOffset == 0) {
+            // يمين: سيارات قديمة
+            drawModernPodium(sideX, posZ, baseID + row, 1);
+            // Jaguar — أول منصة يمين
+            if (row == 0) {
+                drawJaguar(sideX, 0.0f, posZ, -90.0f);
+            }
 
-        // الجناح الأيسر
-        drawModernPodium(-sideX, posZ, podiumID++);
-        drawCeilingLightRing(Point(-sideX, totalH - 5, posZ));
+            // يسار: سيارات رياضية
+            drawModernPodium(-sideX, posZ, baseID + row + 3, 0);
+
+            // Audi R8 — المنصة الأولى
+            if (row == 0) {
+                drawSportsCar(-sideX, 10.0f, posZ, 90.0f);
+            }
+
+            // BMW — المنصة الثانية (التي تلي Audi مباشرة)
+            if (row == 1) {
+                glPushMatrix();
+                glTranslatef(-sideX, 10.0f, posZ);
+                glRotatef(0, 0, 1, 0);
+                //glScalef(0.9f, 0.9f, 0.9f); // ضبط بسيط حسب العين
+                bmw.draw();
+                glPopMatrix();
+            }
+            // سيارات يدوية لباقي المنصات
+            if (row == 2) {
+                // يمين (كلاسيك)
+                drawSimpleCar(
+                    Point(sideX, 0.0f, posZ),
+                    1.0f,
+                    0.1f, 0.5f, 0.2f   // أخضر كلاسيك
+                );
+            }
+
+            if (row == 1 && yOffset > 0) {
+                // طابق علوي - يسار
+                drawSimpleCar(
+                    Point(-sideX, yOffset, posZ),
+                    1.1f,
+                    0.6f, 0.1f, 0.1f   // أحمر غامق
+                );
+            }
+
+            if (row == 2 && yOffset > 0) {
+                // طابق علوي - يمين
+                drawSimpleCar(
+                    Point(sideX, yOffset, posZ),
+                    0.95f,
+                    0.6f, 0.6f, 0.6f   // فضي
+                );
+            }
+
+        }
+
+
+        else {
+            drawModernPodium(sideX, posZ, baseID + row, 2);       // يمين
+            drawModernPodium(-sideX, posZ, baseID + row + 3, 3);  // يسار
+        }
+
+        drawCeilingLightRing(Point(sideX, 290, posZ));
+        drawCeilingLightRing(Point(-sideX, 290, posZ));
     }
 }
 
-// --- 4. حلقة ضوء السقف الدائرية ---
+CarBMW& ShowRoom::GetBMW() {
+    return bmw;
+}
+
+// --- 4. حلقة ضوء السقف ---
 void ShowRoom::drawCeilingLightRing(Point p) {
     glPushMatrix();
     glTranslatef(p.x, p.y, p.z);
     glDisable(GL_LIGHTING);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.9f); // أبيض ساطع
-
+    glColor4f(1.0f, 1.0f, 1.0f, 0.9f);
     glLineWidth(6);
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 40; i++) {
@@ -88,73 +268,118 @@ void ShowRoom::drawCeilingLightRing(Point p) {
     glPopMatrix();
 }
 
-// --- 5. مكتب الاستعلامات الخشبي (كاونتر وكرسي) ---
+// --- 5. مكتب الاستعلامات ---
 void ShowRoom::drawReceptionDesk() {
     glPushMatrix();
-    // وضعه في المنتصف تماماً مقابل الباب (في جهة الجدار الخلفي)
-    glTranslatef(0, -3, -totalL / 2 + 180);
+
+    // قاعدة الطابق العلوي (yOffset)
+    float yBase = -27.0f; // هذا سيكون محسوب من glTranslatef في drawFloorContent
+
+    // نضع المكتب مقابل الجدار الخلفي
+    glTranslatef(0, yBase, +totalL / 2 - 180);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+
+    // ارتفاعات القطع مرتبطة بنفس yBase
+    float bodyHeight = 30.0f;
+    float topHeight = 60.0f;
+    float seatHeight = 25.0f;
+    float backrestHeight = 65.0f;
 
     // الحاجز الخشبي الرئيسي
     glColor3ub(90, 50, 20); // خشب الجوز الداكن
-    Cuboid body(Point(0, 30, 0), 60, 15, 200);
+    Cuboid body(Point(0, bodyHeight, 0), 60, 15, 200);
     body.draw();
 
     // سطح المكتب العريض
     glColor3ub(110, 70, 40);
-    Cuboid top(Point(0, 60, 0), 5, 50, 220);
+    Cuboid top(Point(0, topHeight, 0), 5, 50, 220);
     top.draw();
 
     // الكرسي خلف المكتب
     glColor3ub(20, 20, 20);
-    Cuboid seat(Point(0, 25, -60), 10, 40, 40);
+    Cuboid seat(Point(0, seatHeight, -60), 10, 40, 40);
     seat.draw();
-    Cuboid backrest(Point(0, 65, -75), 50, 5, 40);
+
+    Cuboid backrest(Point(0, backrestHeight, -75), 50, 5, 40);
     backrest.draw();
 
     glPopMatrix();
 }
+
+void ShowRoom::drawGlassWallBehindDesk() {
+    glPushMatrix();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // ارتفاع الطابق فقط (محلي)
+    float wallHeight = floorHeight;
+    float wallThickness = 5.0f;
+    float wallWidth = totalW;
+
+    // ❗️ لا floorHeight هنا
+    //float yPos = -150.0f;              // يبدأ من أرضية الطابق العلوي
+    //float zPos = +totalL / 2 ; // خلف المكتب مباشرة
+
+    //glTranslatef(0, yPos, zPos);
+    glTranslatef(0, -150.0f, +totalL / 2);
+    glRotatef(180.0f, 0, 1, 0);
+
+    // الزجاج
+    glColor4f(0.4f, 0.7f, 1.0f, 0.35f);
+    Cuboid glass(
+        Point(0, wallHeight / 2, 0),
+        wallHeight,
+        wallThickness,
+        wallWidth
+    );
+    glass.draw();
+
+    //// إطار سفلي
+    //glDisable(GL_BLEND);
+    //glColor3f(0.75f, 0.75f, 0.75f);
+    //Cuboid(
+    //    Point(0, wallHeight / 2, 0),
+    //    wallHeight,
+    //    wallThickness,
+    //    wallWidth
+    //).draw();
+
+    //// إطار علوي
+    //Cuboid(
+    //    Point(0, wallHeight - 2, 0),
+    //    wallHeight,
+    //    wallThickness,
+    //    wallWidth
+    //).draw();
+
+    glDisable(GL_BLEND);
+
+    glPopMatrix();
+}
+// --- تم إصلاح الاستدعاء هنا ---
 void ShowRoom::drawFloorContent(float yOffset) {
     glPushMatrix();
     glTranslatef(0, yOffset, 0);
 
-    // رسم المنصات الست (3 يمين و 3 يسار)
-    drawPodiums();
+    // تم إضافة yOffset هنا لحل مشكلة الـ arguments
+    drawPodiums(yOffset);
 
-    // رسم مكتب الاستعلامات (فقط في الطابق العلوي كما طلبت)
     if (yOffset > 0) {
         drawReceptionDesk();
+		drawGlassWallBehindDesk();
     }
 
+
     glPopMatrix();
 }
 
-void ShowRoom::drawElevatorButton(float yOffset, bool isElevatorHere) {
-    glPushMatrix();
-    // نضع الزر على الجدار الخلفي بجانب فتحة المصعد تماماً
-    glTranslatef(70, yOffset + 50, -totalL / 2 + 2);
-
-    // إطار اللوحة
-    glColor3f(0.1f, 0.1f, 0.1f);
-    Cuboid(Point(0, 0, 0), 20, 2, 10).draw();
-
-    // الزر المضيء
-    glDisable(GL_LIGHTING);
-    if (isElevatorHere)
-        glColor3f(0.0f, 1.0f, 0.0f); // أخضر إذا كان المصعد واقفاً عندك
-    else
-        glColor3f(1.0f, 0.0f, 0.0f); // أحمر إذا كان في طابق آخر أو يتحرك
-
-    Cuboid(Point(0, 0, 1), 5, 1, 5).draw();
-    glEnable(GL_LIGHTING);
-    glPopMatrix();
-}
-
-// --- 6. الهيكل والاسم الذهبي والشارع ---
+// --- 6. الهيكل العام والاسم ---
 void ShowRoom::drawMWMName() {
     glPushMatrix();
     glDisable(GL_LIGHTING);
-    glColor3f(1.0f, 0.84f, 0.0f); // ذهبي عيار 24
-    glTranslatef(-85, 165, 755); // تم رفعه قليلاً ليتوسط المساحة فوق الباب
+    glColor3f(1.0f, 0.84f, 0.0f);
+    glTranslatef(-85, 165, 755);
     glScalef(0.6f, 0.6f, 0.6f);
     glLineWidth(5);
     const char* text = "MWM";
@@ -166,39 +391,97 @@ void ShowRoom::drawMWMName() {
 
 void ShowRoom::drawBuildingBase() {
     float t = 5.0f;
-    float totalBuildingH = floorHeight * 2; // الطابقين معاً
+    float totalBuildingH = floorHeight * 2; // طابقين
 
-    // الأرضية السفلى
+    // ================= الأرضية السفلية =================
     glColor3f(0.05f, 0.05f, 0.05f);
     Cuboid(Point(0, -3, 0), t, totalL, totalW).draw();
 
-    // الأرضية الوسطى (سقف الأول وأرضية الثاني) مع فتحة للمصعد
-    // سنرسمها كقطعتين لنترك مساحة للمصعد في الخلف
-    Cuboid(Point(0, floorHeight - 3, 100), t, totalL - 200, totalW).draw();
+    // ================= الأرضية الوسطى =================
+    // سقف الطابق الأرضي / أرضية الطابق العلوي
+    // نترك فراغ داخلي أنيق (Atrium / مصعد / رؤية)
+    glColor3f(0.08f, 0.08f, 0.08f);
+    Cuboid(
+        Point(0, floorHeight - 3, 0),
+        t,
+        totalL - 200,   // فراغ داخلي ذكي
+        totalW
+    ).draw();
 
-    // السقف النهائي
+    // ================= السقف النهائي =================
     glColor3f(0.1f, 0.1f, 0.1f);
     Cuboid(Point(0, totalBuildingH - 3, 0), t, totalL, totalW).draw();
 
-    // الجدران (يجب أن يصل ارتفاعها للضعف الآن)
+    // ================= الجدران الخلفية =================
     glColor3f(0.3f, 0.3f, 0.3f);
-    // الجدار الخلفي الأيسر
-    Cuboid(Point(-totalW / 2 + (totalW - 120) / 4, -3, -totalL / 2), totalBuildingH, 5, (totalW - 120) / 2).draw();
-    // الجدار الخلفي الأيمن
-    Cuboid(Point(totalW / 2 - (totalW - 120) / 4, -3, -totalL / 2), totalBuildingH, 5, (totalW - 120) / 2).draw();
-    // قطعة فوق الباب في الطابق الأرضي
-    Cuboid(Point(0, 100, -totalL / 2), floorHeight - 100, 5, 120).draw();    Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();  // Right
-    // قطعة فوق الباب في الطابق العلوي (ليكتمل مظهر الفتحة)
-    Cuboid(Point(0, floorHeight + 100, -totalL / 2), floorHeight - 100, 5, 120).draw();
-    Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).draw(); // Left
 
-    // الواجهة الأمامية مع الباب (الطابق الأرضي فقط)
+    // خلفي يسار
+    Cuboid(
+        Point(-totalW / 2 + (totalW - 120) / 4, -3, -totalL / 2),
+        totalBuildingH,
+        5,
+        (totalW - 120) / 2
+    ).draw();
+
+    // خلفي يمين
+    Cuboid(
+        Point(totalW / 2 - (totalW - 120) / 4, -3, -totalL / 2),
+        totalBuildingH,
+        5,
+        (totalW - 120) / 2
+    ).draw();
+
+    // ================= الجدران الجانبية =================
+    Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();   // يمين
+    Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();  // يسار
+
+    // ================= فوق الباب – الطابق الأرضي =================
+    Cuboid(
+        Point(0, 100, -totalL / 2),
+        floorHeight - 100,
+        5,
+        120
+    ).draw();
+
+    // ================= فوق الباب – الطابق العلوي =================
+    Cuboid(
+        Point(0, floorHeight + 100, -totalL / 2),
+        floorHeight - 100,
+        5,
+        120
+    ).draw();
+
+    // ================= الواجهة الأمامية مع الباب =================
     float sideWallW = (totalW - doorW) / 2.0f;
     float posX = (totalW / 2.0f) - (sideWallW / 2.0f);
-    Cuboid(Point(-posX, -3, totalL / 2), floorHeight, t, sideWallW).draw();
-    Cuboid(Point(posX, -3, totalL / 2), floorHeight, t, sideWallW).draw();
-    Cuboid(Point(0, doorH - 3, totalL / 2), floorHeight - doorH, t, doorW).draw();
+
+    // يسار الباب
+    Cuboid(
+        Point(-posX, -3, totalL / 2),
+        floorHeight,
+        t,
+        sideWallW
+    ).draw();
+
+    // يمين الباب
+    Cuboid(
+        Point(posX, -3, totalL / 2),
+        floorHeight,
+        t,
+        sideWallW
+    ).draw();
+
+    // أعلى الباب
+    Cuboid(
+        Point(0, doorH - 3, totalL / 2),
+        floorHeight - doorH,
+        t,
+        doorW
+    ).draw();
 }
+
+
+// --- 7. الأشجار والشارع ---
 void ShowRoom::drawTree(float x, float z) {
     // 1. جذع الشجرة (بني)
     glColor3ub(101, 67, 33);
@@ -222,9 +505,10 @@ void ShowRoom::drawTree(float x, float z) {
     leaves3.draw();
 }
 
+
 void ShowRoom::drawOppositeSideline() {
-    float treeZ = 1450.0f;
-    float totalLength = 3000.0f;
+    float treeZ = 1550.0f;
+    float totalLength = 4000.0f;
 
     // رسم رصيف بسيط تحت الشجر
     glColor3ub(50, 50, 50); // رمادي غامق
@@ -239,75 +523,74 @@ void ShowRoom::drawOppositeSideline() {
         drawTree(x, treeZ);
     }
 }
-Point ShowRoom::GetElevatorShaftCenter() const {
-    return Point(
-        0.0f,
-        -3.0f,
-        -totalL / 2 + 2.5f   // داخل الجدار الخلفي تمامًا
-    );
-}
-
-float ShowRoom::GetElevatorDoorWidth() const {
-    return 120.0f;
-}
-
-float ShowRoom::GetFloorHeight() const {
-    return floorHeight; // 300
-}
-
 
 void ShowRoom::drawStreet() {
     float startZ = 750.0f;
     float pieceLen = 50.0f;
+    float streetWidth = 700.0f;
+    float streetLength = 4000.0f;
+
+    // 1. الرصيف
     for (float x = -2000; x < 2000; x += pieceLen) {
         if (((int)(x / pieceLen)) % 2 == 0) glColor3ub(220, 220, 220);
         else glColor3ub(40, 40, 40);
         Cuboid(Point(x + pieceLen / 2, -1, startZ + 50), 2, 100, pieceLen).draw();
     }
+
+    // 2. الإسفلت (Y = -2.5)
     glColor3ub(15, 15, 15);
-    Cuboid(Point(0, -2.5, startZ + 450), 1, 700, 4000).draw();
+    Cuboid(Point(0, -2.5, startZ + 450), 1, streetWidth, streetLength).draw();
+
+    // 3. الخطوط البيضاء (رفعناها إلى Y = -1.8 لتجنب التقطيش)
+    glColor3ub(255, 255, 255);
+    float lineLen = 80.0f;
+    float gapLen = 120.0f;
+    float lineWidth = 8.0f;     // زدنا العرض قليلاً لتكون واضحة
+
+    for (float x = -2000; x < 2000; x += (lineLen + gapLen)) {
+        // قمنا بتغيير الـ Y من -2.0 إلى -1.8 لضمان أنها فوق الشارع بمسافة آمنة
+        Cuboid(Point(x + lineLen / 2, -0.8, startZ + 450), 0.2f, lineWidth, lineLen).draw();
+    }
 }
 
-// --- 7. دالة الرسم الشاملة ---
+// --- 8. الرسم النهائي ---
 void ShowRoom::draw() {
     drawStreet();
-
-    // --- إضافة الأشجار على الطرف الآخر من الشارع ---
     drawOppositeSideline();
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
     drawBuildingBase();
     drawMWMName();
-
-    // رسم الطابق الأرضي (yOffset = 0)
-    drawFloorContent(0);
-
-    // رسم الطابق العلوي (yOffset = floorHeight)
-    // ملاحظة: تأكد أن قيمة floorHeight معرفة داخل الكلاس
-    drawFloorContent(floorHeight);
-
+    drawFloorContent(0);             // الطابق الأرضي
+    drawFloorContent(floorHeight);    // الطابق العلوي
     glDisable(GL_LIGHTING);
 }
-// --- 8. تحديث التصادمات ---
+
+// --- 9. التصادمات ---
 std::vector<Wall> ShowRoom::GetStaticWalls() {
     std::vector<Wall> w;
     float t = 5.0f;
-    float totalBuildingH = 600.0f; // الارتفاع الكلي للطابقين
-
-    // جدران المبنى (يجب أن تغطي الارتفاع الكلي)
+    float totalBuildingH = 600.0f;
     float shaftW = 120.0f;
     float sideW = (totalW - shaftW) / 2.0f;
 
-    w.push_back(Cuboid(Point(-sideW / 2, -3, -totalL / 2),
-        totalBuildingH, t, sideW).ToWall());
-
-    w.push_back(Cuboid(Point(+sideW / 2, -3, -totalL / 2),
-        totalBuildingH, t, sideW).ToWall());
+    w.push_back(Cuboid(Point(-sideW / 2, -3, -totalL / 2), totalBuildingH, t, sideW).ToWall());
+    w.push_back(Cuboid(Point(+sideW / 2, -3, -totalL / 2), totalBuildingH, t, sideW).ToWall());
     w.push_back(Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).ToWall());
     w.push_back(Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).ToWall());
+    // تصادم الحيط الزجاجي خلف المكتب (الطابق العلوي فقط)
+    w.push_back(
+        Cuboid(
+            Point(
+                0.0f,
+                floorHeight - 150.0f,   // نفس y تبع glTranslatef
+                +totalL / 2 - 2.5f      // نفس مكان الحيط (سماكة صغيرة للداخل)
+            ),
+            floorHeight,               // ارتفاع طابق واحد
+            5.0f,                      // سماكة الحيط
+            totalW - 120.0f            // نفس عرض الحيط الزجاجي
+        ).ToWall()
+    );
 
-    // إضافة تصادم المنصات لكل طابق
     for (int floor = 0; floor < 2; floor++) {
         float yOff = floor * 300.0f;
         for (int row = 0; row < 3; row++) {
@@ -316,12 +599,17 @@ std::vector<Wall> ShowRoom::GetStaticWalls() {
             w.push_back(Cuboid(Point(-400.0f, -3 + yOff, pz), 9, 300, 300).ToWall());
         }
     }
-
-    // إضافة تصادم المكتب في الطابق العلوي فقط
     w.push_back(Cuboid(Point(0, 300 - 3, -totalL / 2 + 180), 60, 40, 220).ToWall());
-
     return w;
 }
+
 Wall ShowRoom::GetMainDoorWall() {
     return Cuboid(Point(0, -3, totalL / 2), doorH, 10.0f, doorW).ToWall();
 }
+
+Point ShowRoom::GetElevatorShaftCenter() const {
+    return Point(0.0f, -3.0f, -totalL / 2 + 2.5f);
+}
+
+float ShowRoom::GetElevatorDoorWidth() const { return 120.0f; }
+float ShowRoom::GetFloorHeight() const { return floorHeight; }

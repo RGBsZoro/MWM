@@ -1,107 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CarDoor.cpp" />
+    <ClCompile Include="Cuboid.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
+    <ClCompile Include="Elevator.cpp" />
+    <ClCompile Include="FamilyCar.cpp" />
+    <ClCompile Include="Lighting.cpp" />
+    <ClCompile Include="mwm.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Pyramid.cpp" />
+    <ClCompile Include="ShowRoom.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="Sofa.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="CarBMW.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mwm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cuboid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lighting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Point.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Pyramid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sofa.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShowRoom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Elevator.cpp">
-    <ClCompile Include="CarDoor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FamilyCar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Door.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cuboid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lighting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Point.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pyramid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Skybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sofa.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShowRoom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Elevator.h">
-    <ClInclude Include="Wheel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CarDoor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FamilyCar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CarDoor.h" />
+    <ClInclude Include="Cuboid.h" />
+    <ClInclude Include="Cylinder.h" />
+    <ClInclude Include="Door.h" />
+    <ClInclude Include="Elevator.h" />
+    <ClInclude Include="FamilyCar.h" />
+    <ClInclude Include="Lighting.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Pyramid.h" />
+    <ClInclude Include="ShowRoom.h" />
+    <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Sofa.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Wheel.h" />
+    <ClInclude Include="CarBMW.h" />
+    <ClInclude Include="Materials.h" />
+    <ClInclude Include="ModelLoader.h" />
   </ItemGroup>
 </Project>

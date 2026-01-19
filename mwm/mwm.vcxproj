@@ -136,12 +136,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CarBMW.cpp" />
     <ClCompile Include="CarDoor.cpp" />
     <ClCompile Include="Cuboid.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Elevator.cpp" />
     <ClCompile Include="FamilyCar.cpp" />
     <ClCompile Include="Lighting.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="mwm.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Pyramid.cpp" />
@@ -152,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CarBMW.h" />
     <ClInclude Include="CarDoor.h" />
     <ClInclude Include="Cuboid.h" />
     <ClInclude Include="Cylinder.h" />
@@ -159,6 +162,8 @@
     <ClInclude Include="Elevator.h" />
     <ClInclude Include="FamilyCar.h" />
     <ClInclude Include="Lighting.h" />
+    <ClInclude Include="Materials.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="ShowRoom.h" />
