@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <cmath>
+#include <GL/freeglut.h>
 #include "Point.h"
 #include "Cuboid.h"
 #include "Camera.h"
@@ -13,12 +15,14 @@ public:
     void draw();
     void update(Camera& cam);
     void callElevator(Camera& cam, float backWallZ);
-    void toggle();
 
     bool isAtFloor() const;
 
 private:
     bool isPlayerInside(Camera& cam);
+    void drawCeilingLight();
+    void drawControlPanel();
+    void drawFloorIndicator();
 
 private:
     Point position;
@@ -27,6 +31,11 @@ private:
     float topY;
     float currentY;
     float speed;
+
+    // أبعاد مصعد سيارات
+    float cabinW;
+    float cabinD;
+    float cabinH;
 
     DoorState doorState;
     float doorWidth;
