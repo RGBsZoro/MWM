@@ -12,11 +12,12 @@
 #include "Elevator.h"
 
 #include "FamilyCar.h"
-#ifndef GL_LIGHT1
-#define GL_LIGHT0 0x4000
-#define GL_LIGHT1 0x4001
-#define GL_LIGHT2 0x4002
-#endif
+#include "TimeOfDay.h"
+//#ifndef GL_LIGHT1
+//#define GL_LIGHT0 0x4000
+//#define GL_LIGHT1 0x4001
+//#define GL_LIGHT2 0x4002
+//#endif
 
 using namespace std;
 
@@ -28,15 +29,14 @@ FamilyCar tahoe(Point(100, 0, 1000), 140.0f, 65.0f, 14.0f, 50.0f);
 Lighting sceneLighting;
 ShowRoom mwmShowroom;
 Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
-
 Elevator myElevator(shaftPos, mwmShowroom.GetFloorHeight());
-//CarBMW bmwCar(Point(0, -3.0f, 300), "Sounds/car-not-starting.wav");
+TimeOfDay timeOfDay;
 GLuint displayListID;
+
 bool g_mouseCaptured = false;
 int g_lastMouseX = 400;
 int g_lastMouseY = 300;
-float g_mouseSensitivity = 0.0015f; 
-
+float g_mouseSensitivity = 0.0015f;
 int g_iWidth = 1024;
 int g_iHeight = 768;
 const float g_fNear = 1.0f;
@@ -141,17 +141,12 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	//if (currentCamera == DRIVER)
-		//setDriverSeatCamera(bmwCar);
-	//else
-		camera.Refresh();
-
+	camera.Refresh();
 
 	drawGround();
 
 	glCallList(displayListID);
-	//setupBMWSpotLight(bmwCar);
-	//bmwCar.draw();
+
 	tahoe.draw();
 	myElevator.draw();
 
@@ -162,6 +157,7 @@ void display() {
 
 	glutSwapBuffers();
 }
+
 
 void timer(int value) {
 	myElevator.update(camera);
@@ -223,6 +219,8 @@ void init() {
 	glEndList();
 
 	setupCollision();
+
+	timeOfDay.apply();
 
 	camera.SetPos(0, 20, 1200);
 }
@@ -302,7 +300,12 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 			mwmShowroom.GetElevatorShaftCenter().z
 		);
 		break;
+	case 'm': case 'n':
+		timeOfDay.toggle();
+		break;
+
 	}
+
 }
 
 static void specialKeysCallback(int key, int x, int y) {

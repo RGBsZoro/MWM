@@ -47,6 +47,7 @@ private:
     void drawFloorContent(float yOffset);
     void drawBuildingBase();
     void drawTree(float x, float z);
+    void drawSectionLabels();
 
     float totalW = 1500.0f;
     float totalH = 200.0f;
