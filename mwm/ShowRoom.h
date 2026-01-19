@@ -39,6 +39,7 @@ private:
     //void drawPodiums(float x, float z, float w, float l);
     //void drawCeilingLights();
     void drawReceptionDesk();
+    void drawGlassWallBehindDesk();
     void drawFloorContent(float yOffset);
     //void drawElevator();
     //void drawOffice();

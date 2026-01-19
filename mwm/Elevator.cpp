@@ -1,54 +1,82 @@
 ﻿#include "Elevator.h"
+
+// ================= Constructor =================
 Elevator::Elevator(Point startPos, float targetH)
     : position(startPos),
-    bottomY(startPos.y),
-    topY(startPos.y + targetH),
-    currentY(startPos.y),
-    speed(1.5f),
+    bottomY(startPos.y),              // أرضية الطابق الأرضي
+    topY(startPos.y + targetH),       // أرضية الطابق العلوي
+    currentY(startPos.y),             // يبدأ على الأرض تمامًا
+    speed(1.2f),
+    cabinW(420.0f),
+    cabinD(650.0f),
+    cabinH(260.0f),
     doorState(DoorState::CLOSED),
     doorWidth(0.0f),
-    maxDoorWidth(120.0f),
+    maxDoorWidth(380.0f),
     state(ElevatorState::IDLE)
 {
 }
+
+// ================= Utils =================
 bool Elevator::isAtFloor() const {
     return fabs(currentY - bottomY) < 1.0f ||
         fabs(currentY - topY) < 1.0f;
 }
-void Elevator::callElevator(Camera& cam, float backWallZ) {
+
+// ================= Call Elevator =================
+// تعديل دالة callElevator لتكون أكثر دقة عند ضغط L
+void Elevator::callElevator(Camera& cam, float targetZ) {
     float cx, cy, cz;
     cam.GetPos(cx, cy, cz);
 
-    if (cz < backWallZ + 150 && cz > backWallZ - 50) {
-        if (doorState == DoorState::OPEN) {
-            doorState = DoorState::CLOSING;
+    // التحقق من أن اللاعب يقف أمام فتحة المصعد (الجدار الخلفي)
+    bool nearShaft = fabs(cx - position.x) < 150.0f &&
+        fabs(cz - targetZ) < 100.0f;
+
+    if (!nearShaft) return;
+
+    if (doorState == DoorState::OPEN) {
+        doorState = DoorState::CLOSING;
+    }
+    else if (doorState == DoorState::CLOSED && state == ElevatorState::IDLE) {
+        // إذا كان المصعد في الطابق الآخر، يتحرك إليك
+        // إذا كان في نفس طابقك، يفتح الباب فقط
+        float distToBottom = fabs(currentY - bottomY);
+        float distToTop = fabs(currentY - topY);
+        float playerY = cy;
+
+        if (playerY < (bottomY + topY) / 2) { // اللاعب في الأرضي
+            if (distToBottom < 5.0f) doorState = DoorState::OPENING;
+            else state = ElevatorState::MOVING_DOWN;
         }
-        else if (doorState == DoorState::CLOSED && state == ElevatorState::IDLE) {
-            if (fabs(currentY - bottomY) < 5.0f)
-                state = ElevatorState::MOVING_UP;
-            else
-                state = ElevatorState::MOVING_DOWN;
+        else { // اللاعب في الأول
+            if (distToTop < 5.0f) doorState = DoorState::OPENING;
+            else state = ElevatorState::MOVING_UP;
         }
     }
 }
+// ================= Update =================
 void Elevator::update(Camera& cam) {
 
-    // الأبواب
+    // ===== الأبواب =====
     if (doorState == DoorState::OPENING) {
-        doorWidth += 1.0f;
-        if (doorWidth >= maxDoorWidth)
+        doorWidth += 3.0f;
+        if (doorWidth >= maxDoorWidth) {
+            doorWidth = maxDoorWidth;
             doorState = DoorState::OPEN;
+        }
     }
     else if (doorState == DoorState::CLOSING) {
-        doorWidth -= 1.0f;
+        doorWidth -= 3.0f;
         if (doorWidth <= 0.0f) {
             doorWidth = 0.0f;
             doorState = DoorState::CLOSED;
         }
     }
 
-    // حركة المصعد
-    if (doorState == DoorState::CLOSED) {
+    // ===== الحركة =====
+    if (state != ElevatorState::IDLE && doorState == DoorState::CLOSED) {
+
         float oldY = currentY;
 
         if (state == ElevatorState::MOVING_UP) {
@@ -68,51 +96,124 @@ void Elevator::update(Camera& cam) {
             }
         }
 
-        // ربط اللاعب بالمصعد
+        // ربط اللاعب بأرضية المصعد
         if (isPlayerInside(cam)) {
-            cam.SetPos(cam.m_x, cam.m_y + (currentY - oldY), cam.m_z);
+            cam.SetPos(cam.m_x,
+                cam.m_y + (currentY - oldY),
+                cam.m_z);
         }
     }
 }
 
+// ================= Collision =================
 bool Elevator::isPlayerInside(Camera& cam) {
     float cx, cy, cz;
     cam.GetPos(cx, cy, cz);
 
-    float halfW = maxDoorWidth / 2.0f;
+    bool insideX = fabs(cx - position.x) <= cabinW / 2;
+    bool insideZ = (cz <= position.z + 5) &&
+        (cz >= position.z - cabinD);
 
-    bool insideX = (cx > position.x - halfW && cx < position.x + halfW);
-    bool insideZ = (cz > position.z - 50 && cz < position.z + 50);
-    bool insideY = (fabs(cy - currentY) < 30.0f);
+    // اللاعب يقف على أرضية المصعد
+    bool insideY = (cy >= currentY) &&
+        (cy <= currentY + cabinH);
 
     return insideX && insideZ && insideY;
 }
+// ================= Drawing Helpers =================
+void Elevator::drawCeilingLight() {
+    glDisable(GL_LIGHTING);
+    glColor4f(1.0f, 1.0f, 0.95f, 0.9f);
 
-void Elevator::draw() {
+    glBegin(GL_QUADS);
+    glVertex3f(-cabinW / 4, cabinH - 5, -cabinD / 4);
+    glVertex3f(cabinW / 4, cabinH - 5, -cabinD / 4);
+    glVertex3f(cabinW / 4, cabinH - 5, cabinD / 4);
+    glVertex3f(-cabinW / 4, cabinH - 5, cabinD / 4);
+    glEnd(); 
+    glEnable(GL_LIGHTING);
+}
+
+void Elevator::drawControlPanel() {
     glPushMatrix();
-    glTranslatef(position.x, currentY, position.z);
+    glTranslatef(cabinW / 2 - 15, 120, -cabinD / 2 + 30);
 
-    // جسم المصعد
-    glColor3f(0.2f, 0.2f, 0.2f);
-    Cuboid(Point(0, 50, 0), 100, 100, 120).draw();
+    glColor3f(0.05f, 0.05f, 0.05f);
+    Cuboid(Point(0, 0, 0), 140, 8, 30).draw();
 
-    // الباب الأيسر
-    glColor3f(0.1f, 0.1f, 0.1f);
-    Cuboid(
-        Point(-doorWidth / 2, 50, 60),
-        100,
-        5,
-        maxDoorWidth / 2 - doorWidth / 2
-    ).draw();
+    glDisable(GL_LIGHTING);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    Cuboid(Point(0, 40, 6), 12, 4, 12).draw();
 
-    // الباب الأيمن
-    Cuboid(
-        Point(doorWidth / 2, 50, 60),
-        100,
-        5,
-        maxDoorWidth / 2 - doorWidth / 2
-    ).draw();
+    glColor3f(1.0f, 0.0f, 0.0f);
+    Cuboid(Point(0, -40, 6), 12, 4, 12).draw();
+    glEnable(GL_LIGHTING);
 
     glPopMatrix();
 }
 
+void Elevator::drawFloorIndicator() {
+    glDisable(GL_LIGHTING);
+    glColor3f(0.0f, 1.0f, 0.8f);
+
+    glPushMatrix();
+    glTranslatef(-30, cabinH - 40, cabinD / 2 + 2);
+    glScalef(0.2f, 0.2f, 0.2f);
+
+    const char* txt = (fabs(currentY - bottomY) < 10) ? "G" : "1";
+    for (const char* c = txt; *c; c++)
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+
+    glPopMatrix();
+    glEnable(GL_LIGHTING);
+}
+
+// ================= Draw =================
+// في Elevator.cpp - تعديل دالة Draw
+void Elevator::draw() {
+
+    // خط Debug عند أرضية المصعد
+    /*glDisable(GL_LIGHTING);
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINES);
+    glVertex3f(-100, 0, 0);
+    glVertex3f(100, 0, 0);
+    glEnd();
+    glEnable(GL_LIGHTING);*/
+
+    glPushMatrix();
+
+    // تحريك المصعد بحيث يكون Y = أرضية المصعد
+    glTranslatef(position.x, currentY, position.z);
+
+    // ===== الكبينة =====
+    // مركز الكبينة على ارتفاع cabinH/2 فوق الأرض
+    glColor3f(0.15f, 0.15f, 0.15f);
+    Cuboid(
+        Point(0, cabinH / 2, -cabinD / 2),
+        cabinH, cabinD, cabinW
+    ).draw();
+
+    // ===== الأبواب =====
+    float doorH = 220.0f;
+    glColor3f(0.3f, 0.3f, 0.3f);
+
+    Cuboid(
+        Point(-(maxDoorWidth / 2 + doorWidth) / 2, doorH / 2, 0),
+        doorH, 5, maxDoorWidth / 2 - doorWidth / 2
+    ).draw();
+
+    Cuboid(
+        Point((maxDoorWidth / 2 + doorWidth) / 2, doorH / 2, 0),
+        doorH, 5, maxDoorWidth / 2 - doorWidth / 2
+    ).draw();
+
+    // ===== الداخل =====
+    glPushMatrix();
+    glTranslatef(0, 0, -cabinD / 2);
+    drawCeilingLight();
+    drawControlPanel();
+    glPopMatrix();
+
+    glPopMatrix();
+}

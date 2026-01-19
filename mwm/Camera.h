@@ -198,7 +198,7 @@ private:
 
 	const float GROUND_Y = -2.0f;// مستوى الأرض (نفس drawGround)
 	const float PLAYER_RADIUS = 2.0f;   // عرض اللاعب
-	const float PLAYER_HEIGHT = 10.0f;  // ارتفاع عين اللاعب
+	const float PLAYER_HEIGHT = 16.0f;  // ارتفاع عين اللاعب
 	float m_lx, m_ly, m_lz; // Direction vector of where we are looking at
 	float m_yaw, m_pitch; // Various rotation angles
 	float m_strafe_lx, m_strafe_lz; // Always 90 degree to direction vector

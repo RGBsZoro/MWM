@@ -70,32 +70,50 @@ bool Camera::TryStepUp(float nextX, float nextZ) {
 }
 
 void Camera::Move(float incr) {
-    float nextX = m_x + incr * m_lx;
-    float nextZ = m_z + incr * m_lz;
-    Point nextPos(nextX, m_y, nextZ);
+    float remaining = incr;
+    float stepSize = 5.0f; // حجم خطوة صغيرة لفحص التصادم
+    while (fabs(remaining) > 0.0f) {
+        float delta = (fabs(remaining) < stepSize) ? remaining : (remaining > 0 ? stepSize : -stepSize);
 
-    if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
-        m_x = nextX;
-        m_z = nextZ;
-        if (m_mode == MovementMode::FLY) m_y += incr * m_ly;
-    }
-    else if (m_mode == MovementMode::WALK) {
-        TryStepUp(nextX, nextZ);
+        float nextX = m_x + delta * m_lx;
+        float nextZ = m_z + delta * m_lz;
+        Point nextPos(nextX, m_y, nextZ);
+
+        if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
+            m_x = nextX;
+            m_z = nextZ;
+            if (m_mode == MovementMode::FLY)
+                m_y += delta * m_ly;
+        }
+        else if (m_mode == MovementMode::WALK) {
+            TryStepUp(nextX, nextZ);
+        }
+
+        remaining -= delta;
     }
     Refresh();
 }
 
-void Camera::Strafe(float incr) {
-    float nextX = m_x + incr * m_strafe_lx;
-    float nextZ = m_z + incr * m_strafe_lz;
-    Point nextPos(nextX, m_y, nextZ);
 
-    if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
-        m_x = nextX;
-        m_z = nextZ;
-    }
-    else if (m_mode == MovementMode::WALK) {
-        TryStepUp(nextX, nextZ);
+void Camera::Strafe(float incr) {
+    float remaining = incr;
+    float stepSize = 5.0f;
+    while (fabs(remaining) > 0.0f) {
+        float delta = (fabs(remaining) < stepSize) ? remaining : (remaining > 0 ? stepSize : -stepSize);
+
+        float nextX = m_x + delta * m_strafe_lx;
+        float nextZ = m_z + delta * m_strafe_lz;
+        Point nextPos(nextX, m_y, nextZ);
+
+        if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
+            m_x = nextX;
+            m_z = nextZ;
+        }
+        else if (m_mode == MovementMode::WALK) {
+            TryStepUp(nextX, nextZ);
+        }
+
+        remaining -= delta;
     }
     Refresh();
 }

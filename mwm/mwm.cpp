@@ -182,7 +182,7 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 }
 
 static void specialKeysCallback(int key, int x, int y) {
-	float step = 20.0f;
+	float step = 15.0f;
 	switch (key) {
 	case GLUT_KEY_UP:    camera.Move(step); break;
 	case GLUT_KEY_DOWN:  camera.Move(-step); break;
