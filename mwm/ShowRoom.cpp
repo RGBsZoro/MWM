@@ -9,6 +9,10 @@ ShowRoom::ShowRoom()
 	audiR8.load("models/r8/r8.obj", "models/r8/r8.mtl");
 	jaguar.load("models/jaguar/jaguar.obj", "models/jaguar/jaguar.mtl");
 
+	floorTex.loadTexture("Textures/garden.jpg");
+	// إنشاء الأرضية (مثلاً بحجم 1500 ليناسب totalW و totalL)
+	floorTerrain = new Terrain(1500, -3.0f, 0);
+
 }
 
 struct SectionLabel {
@@ -340,8 +344,26 @@ void ShowRoom::drawBuildingBase() {
 	float t = 5.0f;
 	float totalBuildingH = floorHeight * 2; 
 
-	glColor3f(0.05f, 0.05f, 0.05f);
-	Cuboid(Point(0, -3, 0), t, totalL, totalW).draw();
+	if (floorTerrain) {
+		floorTerrain->draw(floorTex);
+	}
+
+	// 2. رسم أرضية المعرض الداخلية (لون سادة يطابق الجدران)
+	glPushMatrix();
+	// نرفعها قليلاً جداً عن مستوى الحديقة (مثلاً -2.9 بدل -3.0)
+	float internalFloorY = -2.9f;
+
+	// نستخدم لون رمادي غامق يشبه الجدران (0.1f)
+	glColor3f(0.12f, 0.12f, 0.12f);
+
+	// نرسم بلاطة تغطي مساحة المعرض فقط (totalW x totalL)
+	glBegin(GL_QUADS);
+	glVertex3f(-totalW / 2, internalFloorY, -totalL / 2);
+	glVertex3f(totalW / 2, internalFloorY, -totalL / 2);
+	glVertex3f(totalW / 2, internalFloorY, totalL / 2);
+	glVertex3f(-totalW / 2, internalFloorY, totalL / 2);
+	glEnd();
+	glPopMatrix();
 
 	// ================= الأرضية الوسطى =================
 	
@@ -517,7 +539,6 @@ void drawWallLabel(
 	glTranslatef(pos.x, pos.y, pos.z);
 	glRotatef(rotationY, 0, 1, 0);
 
-	// خلفية خفيفة (لو حاب)
 	glColor4f(0.0f, 0.0f, 0.0f, 0.4f);
 	glBegin(GL_QUADS);
 	glVertex3f(-80, -20, 1);
@@ -526,7 +547,6 @@ void drawWallLabel(
 	glVertex3f(-80, 20, 1);
 	glEnd();
 
-	// النص
 	glColor3f(color.r, color.g, color.b);
 	glTranslatef(-60, -8, 2);
 	glScalef(scale, scale, scale);
@@ -579,7 +599,14 @@ void ShowRoom::drawSectionLabels() {
 	);
 }
 
-
+// داخل ShowRoom.cpp
+void ShowRoom::initRoom() {
+	// انقل عمليات التحميل إلى هنا لضمان وجود نافذة OpenGL جاهزة
+	floorTex.loadTexture("Textures/garden.jpg");
+	if (floorTerrain == nullptr) {
+		floorTerrain = new Terrain(5000, -3.0f, 0);
+	}
+}
 
 // --- 9. التصادمات ---
 std::vector<Wall> ShowRoom::GetStaticWalls() {

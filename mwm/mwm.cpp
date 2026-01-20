@@ -13,6 +13,9 @@
 
 #include "FamilyCar.h"
 #include "TimeOfDay.h"
+#include "world.h"
+#include "Tree.h"
+
 //#ifndef GL_LIGHT1
 //#define GL_LIGHT0 0x4000
 //#define GL_LIGHT1 0x4001
@@ -31,7 +34,8 @@ ShowRoom mwmShowroom;
 Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
 Elevator myElevator(shaftPos, mwmShowroom.GetFloorHeight());
 TimeOfDay timeOfDay;
-GLuint displayListID;
+//GLuint displayListID;
+World world;
 
 bool g_mouseCaptured = false;
 int g_lastMouseX = 400;
@@ -53,37 +57,37 @@ void setupCollision() {
 	camera.doorWalls.push_back(mwmShowroom.GetMainDoorWall());
 }
 
-void drawGround() {
-	glDisable(GL_LIGHTING);
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.1f, 0.1f, 0.1f); 
-	glBegin(GL_QUADS);
-	glVertex3f(-5000.0f, -3.1f, -5000.0f);
-	glVertex3f(5000.0f, -3.1f, -5000.0f);
-	glVertex3f(5000.0f, -3.1f, 5000.0f);
-	glVertex3f(-5000.0f, -3.1f, 5000.0f);
-	glEnd();
-	glEnable(GL_LIGHTING);
-}
+//void drawGround() {
+//	glDisable(GL_LIGHTING);
+//	glDisable(GL_TEXTURE_2D);
+//	glColor3f(0.1f, 0.1f, 0.1f); 
+//	glBegin(GL_QUADS);
+//	glVertex3f(-5000.0f, -3.1f, -5000.0f);
+//	glVertex3f(5000.0f, -3.1f, -5000.0f);
+//	glVertex3f(5000.0f, -3.1f, 5000.0f);
+//	glVertex3f(-5000.0f, -3.1f, 5000.0f);
+//	glEnd();
+//	glEnable(GL_LIGHTING);
+//}
 
-void drawTree(float x, float z) {
-	glColor3ub(101, 67, 33);
-	Cuboid trunk(Point(x, 0.0f, z), 50.0f, 12.0f, 12.0f);
-	trunk.draw();
-
-
-	glColor3ub(34, 139, 34);
-	Cuboid leaves1(Point(x, 45.0f, z), 40.0f, 70.0f, 70.0f);
-	leaves1.draw();
-
-	glColor3ub(46, 170, 46);
-	Cuboid leaves2(Point(x, 75.0f, z), 35.0f, 55.0f, 55.0f);
-	leaves2.draw();
-
-	glColor3ub(60, 200, 60);
-	Cuboid leaves3(Point(x, 100.0f, z), 25.0f, 35.0f, 35.0f);
-	leaves3.draw();
-}
+//void drawTree(float x, float z) {
+//	glColor3ub(101, 67, 33);
+//	Cuboid trunk(Point(x, 0.0f, z), 50.0f, 12.0f, 12.0f);
+//	trunk.draw();
+//
+//
+//	glColor3ub(34, 139, 34);
+//	Cuboid leaves1(Point(x, 45.0f, z), 40.0f, 70.0f, 70.0f);
+//	leaves1.draw();
+//
+//	glColor3ub(46, 170, 46);
+//	Cuboid leaves2(Point(x, 75.0f, z), 35.0f, 55.0f, 55.0f);
+//	leaves2.draw();
+//
+//	glColor3ub(60, 200, 60);
+//	Cuboid leaves3(Point(x, 100.0f, z), 25.0f, 35.0f, 35.0f);
+//	leaves3.draw();
+//}
 
 void setDriverSeatCamera(CarBMW& car) {
 	glMatrixMode(GL_MODELVIEW);
@@ -143,9 +147,10 @@ void display() {
 
 	camera.Refresh();
 
-	drawGround();
+	world.draw();
+	mwmShowroom.draw();
 
-	glCallList(displayListID);
+	//glCallList(displayListID);
 
 	tahoe.draw();
 	myElevator.draw();
@@ -158,10 +163,10 @@ void display() {
 	glutSwapBuffers();
 }
 
-
 void timer(int value) {
-	myElevator.update(camera);
+	world.update();
 
+	myElevator.update(camera);
 	tahoe.update();
 
 	if (tahoe.isDriving) {
@@ -213,16 +218,21 @@ void init() {
 	GLfloat ambientColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
-	displayListID = glGenLists(1);
+	/*displayListID = glGenLists(1);
 	glNewList(displayListID, GL_COMPILE);
 	mwmShowroom.draw();
-	glEndList();
+	glEndList();*/
 
 	setupCollision();
 
 	timeOfDay.apply();
 
 	camera.SetPos(0, 20, 1200);
+
+	world.addTree(new Tree(Point(-200, 0, 1500), TreeType::Default, 1.0f));
+	world.addTree(new Tree(Point(0, 0, 1600), TreeType::Default, 1.2f));
+	world.addTree(new Tree(Point(300, 0, 1550), TreeType::Palm, 0.8f));
+	mwmShowroom.initRoom();
 }
 
 void reshape(int w, int h) {

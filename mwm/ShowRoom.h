@@ -5,7 +5,8 @@
 #include "Cuboid.h"
 #include "ModelLoader.h"
 #include "CarBMW.h"
-
+#include "Texture.h" // أضف هذا
+#include "Terrain.h"
 
 
 class ShowRoom {
@@ -15,7 +16,7 @@ public:
 
     void drawJaguar(float x, float y, float z, float rotation);
 
-    void drawSimpleCar(Point p, float scale, float r, float g, float b);
+    static void drawSimpleCar(Point p, float scale, float r, float g, float b);
 
     void drawSportsCar(float x, float y, float z, float rotation);
 
@@ -29,6 +30,7 @@ public:
     float GetElevatorDoorWidth() const;
     float GetFloorHeight() const;
     void draw();
+    void initRoom();
 
     std::vector<Wall> GetStaticWalls();
     Wall GetMainDoorWall();
@@ -37,6 +39,8 @@ private:
     CarBMW bmw;
     ModelLoader audiR8;
     ModelLoader jaguar;   
+    Texture floorTex; // كائن التيكستشر
+    Terrain* floorTerrain;
 
     float floorHeight = 300.0f;
     //void drawElevatorButton(float yOffset, bool isElevatorHere);

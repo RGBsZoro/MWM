@@ -137,7 +137,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CarBMW.cpp" />
-    <ClCompile Include="CarDoor.cpp" />
     <ClCompile Include="Cuboid.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Elevator.cpp" />
@@ -152,11 +151,20 @@
     <ClCompile Include="Sofa.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TimeOfDay.cpp" />
+    <ClCompile Include="Building.cpp" />
+    <ClCompile Include="CityBlock.cpp" />
+    <ClCompile Include="Garden.cpp" />
+    <ClCompile Include="NPCCar.cpp" />
+    <ClCompile Include="Road.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TrafficSystem.cpp" />
+    <ClCompile Include="Tree.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Downloads\stb\stb_image.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CarBMW.h" />
-    <ClInclude Include="CarDoor.h" />
     <ClInclude Include="Cuboid.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Door.h" />
@@ -174,6 +182,15 @@
     <ClInclude Include="TimeOfDay.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Wheel.h" />
+    <ClInclude Include="Building.h" />
+    <ClInclude Include="CityBlock.h" />
+    <ClInclude Include="Garden.h" />
+    <ClInclude Include="NPCCar.h" />
+    <ClInclude Include="Road.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TrafficSystem.h" />
+    <ClInclude Include="Tree.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
