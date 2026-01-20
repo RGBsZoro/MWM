@@ -8,10 +8,19 @@
 #include "Texture.h" // أضف هذا
 #include "Terrain.h"
 
+#include "Camera.h"
+#include "FamilyCar.h"
+
+class Elevator;
 
 class ShowRoom {
 public:
     ShowRoom();
+    ~ShowRoom(); // نحتاج مدمر لحذف المؤشر
+    void drawElevator();
+    void updateElevator(Camera& cam, FamilyCar& car);
+    //void updateElevator(Camera& cam);
+    void callElevator(Camera& cam);
     CarBMW& GetBMW();
 
     void drawJaguar(float x, float y, float z, float rotation);
@@ -43,6 +52,7 @@ private:
     Terrain* floorTerrain;
 
     float floorHeight = 300.0f;
+    Elevator* myElevator; // تعريف المصعد كمؤشر (Pointer) للتحكم بلحظة إنشائه
     //void drawElevatorButton(float yOffset, bool isElevatorHere);
     void drawMWMName();
     void drawGlassWallBehindDesk();
