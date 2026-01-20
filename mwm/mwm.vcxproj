@@ -151,6 +151,7 @@
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Sofa.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TimeOfDay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Sofa.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TimeOfDay.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Wheel.h" />
   </ItemGroup>

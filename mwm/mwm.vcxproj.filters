@@ -17,6 +17,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="CarBMW.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="TimeOfDay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -38,5 +39,6 @@
     <ClInclude Include="CarBMW.h" />
     <ClInclude Include="Materials.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="TimeOfDay.h" />
   </ItemGroup>
 </Project>

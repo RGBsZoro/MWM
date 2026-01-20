@@ -361,6 +361,8 @@ void ShowRoom::drawBuildingBase() {
 	glColor3f(0.05f, 0.05f, 0.05f);
 	Cuboid(Point(0, -3, 0), t, totalL, totalW).draw();
 
+	// ================= الأرضية الوسطى =================
+	
 	glColor3f(0.08f, 0.08f, 0.08f);
 	Cuboid(
 		Point(0, floorHeight - 3, 0),
@@ -531,15 +533,114 @@ void ShowRoom::draw() {
 	glEnable(GL_LIGHTING);
 	drawBuildingBase();
 	drawMWMName();
-	drawFloorContent(0);             
+	drawSectionLabels();
+	drawFloorContent(0); 
 	drawFloorContent(floorHeight);    
 	glDisable(GL_LIGHTING);
 }
+
+void draw3DText(const char* text,Point pos,float scale,float r, float g, float b) {
+	glPushMatrix();
+	glDisable(GL_LIGHTING);
+
+	glColor3f(r, g, b);
+	glTranslatef(pos.x, pos.y, pos.z);
+	glScalef(scale, scale, scale);
+	glLineWidth(3);
+
+	for (const char* c = text; *c != '\0'; c++) {
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+	}
+
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+}
+
+void drawWallLabel(
+	const char* text,
+	Point pos,
+	float rotationY,
+	float scale,
+	color3f color
+) {
+	glPushMatrix();
+	glDisable(GL_LIGHTING);
+
+	glTranslatef(pos.x, pos.y, pos.z);
+	glRotatef(rotationY, 0, 1, 0);
+
+	// خلفية خفيفة (لو حاب)
+	glColor4f(0.0f, 0.0f, 0.0f, 0.4f);
+	glBegin(GL_QUADS);
+	glVertex3f(-80, -20, 1);
+	glVertex3f(80, -20, 1);
+	glVertex3f(80, 20, 1);
+	glVertex3f(-80, 20, 1);
+	glEnd();
+
+	// النص
+	glColor3f(color.r, color.g, color.b);
+	glTranslatef(-60, -8, 2);
+	glScalef(scale, scale, scale);
+
+	for (const char* c = text; *c; c++)
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+}
+
+void ShowRoom::drawSectionLabels() {
+
+	float yGround = 120.0f;
+	float yUpper = floorHeight + 120.0f;
+
+	float wallZCenter = 0.0f; 
+	float offsetX = 20.0f;
+
+	drawWallLabel(
+		"SECTION 1",
+		Point(+totalW / 2 - offsetX, yGround, wallZCenter),
+		-90.0f,
+		0.18f,
+		color3f(0.0f, 0.4f, 0.8f) 
+	);
+
+	drawWallLabel(
+		"SECTION 2",
+		Point(-totalW / 2 + offsetX, yGround, wallZCenter),
+		90.0f,
+		0.18f,
+		color3f(1.0f, 0.0f, 0.0f) 
+	);
+
+	drawWallLabel(
+		"SECTION 3",
+		Point(+totalW / 2 - offsetX, yUpper, wallZCenter),
+		-90.0f,
+		0.18f,
+		color3f(0.0f, 1.0f, 0.2f) 
+	);
+
+	drawWallLabel(
+		"SECTION 4",
+		Point(-totalW / 2 + offsetX, yUpper, wallZCenter),
+		90.0f,
+		0.18f,
+		color3f(1.0f, 1.0f, 0.0f) 
+	);
+}
+
+
 
 // --- 9. التصادمات ---
 std::vector<Wall> ShowRoom::GetStaticWalls() {
 	std::vector<Wall> w;
 	float t = 5.0f;
+	float wallThickness = 5.0f;
+	float sideWallWidth = (totalW - doorW) / 2.0f;
+	float sideWallCenterX = doorW / 2.0f + sideWallWidth / 2.0f;
+	float doorZ = totalL / 2;
 	float totalBuildingH = 600.0f;
 	float eDoorW = 380.0f;
 	float sideW = (totalW - eDoorW) / 2.0f;

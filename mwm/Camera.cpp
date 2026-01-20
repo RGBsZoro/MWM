@@ -108,8 +108,8 @@ void Camera::Move(float incr) {
         if (!CheckCollision(nextPos) && !CheckDoorCollision(nextPos)) {
             m_x = nextX;
             m_z = nextZ;
-            if (m_mode == MovementMode::FLY)
-                m_y += delta * m_ly;
+            /*if (m_mode == MovementMode::FLY)
+                m_y += delta * m_ly;*/
         }
         else if (m_mode == MovementMode::WALK) {
             TryStepUp(nextX, nextZ);
@@ -228,12 +228,16 @@ void Camera::setDriverSeatCamera(CarBMW& car) {
     );
 }
 
-
 void Camera::Fly(float incr) {
-    if (m_mode == MovementMode::FLY) {
+    if (m_mode != MovementMode::FLY) return;
+
+    Point newPos(m_x, m_y + incr, m_z);
+
+    if (!CheckCollision(newPos) && !CheckDoorCollision(newPos)) {
         m_y += incr;
-        Refresh();
     }
+
+    Refresh();
 }
 
 void Camera::RotateYaw(float angle) { m_yaw += angle; Refresh(); }
