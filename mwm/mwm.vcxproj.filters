@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CarDoor.cpp" />
     <ClCompile Include="Cuboid.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Elevator.cpp" />
@@ -18,10 +17,18 @@
     <ClCompile Include="CarBMW.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="TimeOfDay.cpp" />
+    <ClCompile Include="world.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Tree.cpp" />
+    <ClCompile Include="Garden.cpp" />
+    <ClCompile Include="Building.cpp" />
+    <ClCompile Include="CityBlock.cpp" />
+    <ClCompile Include="Road.cpp" />
+    <ClCompile Include="NPCCar.cpp" />
+    <ClCompile Include="TrafficSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CarDoor.h" />
     <ClInclude Include="Cuboid.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Door.h" />
@@ -40,5 +47,15 @@
     <ClInclude Include="Materials.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="TimeOfDay.h" />
+    <ClInclude Include="world.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Tree.h" />
+    <ClInclude Include="Garden.h" />
+    <ClInclude Include="Building.h" />
+    <ClInclude Include="CityBlock.h" />
+    <ClInclude Include="Road.h" />
+    <ClInclude Include="NPCCar.h" />
+    <ClInclude Include="TrafficSystem.h" />
+    <ClInclude Include="..\..\..\..\Downloads\stb\stb_image.h" />
   </ItemGroup>
 </Project>

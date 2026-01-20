@@ -4,7 +4,7 @@
 class Texture
 {
 public:
-	GLuint textureID;
+	GLuint textureID = 0;
 	void loadTexture(const char* filename);
 	void Use();
 };
