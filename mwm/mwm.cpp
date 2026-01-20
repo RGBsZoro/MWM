@@ -25,7 +25,12 @@ using namespace std;
 CameraMode currentCamera = FREE;
 Camera camera;
 Door mainDoor;
-FamilyCar tahoe(Point(100, 0, 1000), 140.0f, 65.0f, 14.0f, 50.0f);
+FamilyCar cars[4] = {
+	FamilyCar(Point(100, 0, 1000), 140.0f, 65.0f, 14.0f, 50.0f),
+	FamilyCar(Point(-400, 310, 0), 140.0f, 65.0f, 14.0f, 50.0f),
+	FamilyCar(Point(-400, 310, 450), 140.0f, 65.0f, 14.0f, 50.0f),
+	FamilyCar(Point(-400, 310, -450), 140.0f, 65.0f, 14.0f, 50.0f)
+};
 Lighting sceneLighting;
 ShowRoom mwmShowroom;
 //Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
@@ -147,9 +152,15 @@ void display() {
 	drawGround();
 
 	glCallList(displayListID);
+	//setupBMWSpotLight(bmwCar);
+	//bmwCar.draw();
+	cars[0].draw(50, 50, 60);
+	cars[1].draw(255, 0, 0);
+	cars[2].draw(0, 255, 0);
+	cars[3].draw(0, 0, 255);
 
-	tahoe.draw();
 	mwmShowroom.drawElevator();
+
 	sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
 	sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
 
@@ -161,36 +172,33 @@ void display() {
 
 void timer(int value) {
 	mwmShowroom.updateElevator(camera,tahoe); // تحديث المصعد من خلال المعرض
-	tahoe.update();
+	bool anyCarDriving = false; 
 
-	if (tahoe.isDriving) {
-		float angleRad = tahoe.carRotation * (3.14159f / 180.0f);
+	for (int i = 0; i < 4; i++) {
+		cars[i].update();
 
-		float offsetX = 10.0f * cos(angleRad) + 15.0f * sin(angleRad);
-		float offsetZ = -20.0f * sin(angleRad) + 15.0f * cos(angleRad);
+		if (cars[i].isDoorOpen && cars[i].doorAngle < 70.0f) cars[i].doorAngle += 2.0f;
+		else if (!cars[i].isDoorOpen && cars[i].doorAngle > 0.0f) cars[i].doorAngle -= 2.0f;
 
-		float driverX = tahoe.pos.x + offsetX;
-		float driverY = tahoe.pos.y + 38.0f; 
-		float driverZ = tahoe.pos.z + offsetZ;
+		if (cars[i].isDriving) {
+			anyCarDriving = true; 
 
-		camera.SetPos(tahoe.pos.x + offsetX, tahoe.pos.y + 38.0f, tahoe.pos.z + offsetZ);
-		camera.SetYaw(-angleRad);
+			float angleRad = cars[i].carRotation * (3.14159f / 180.0f);
+			float offsetX = 10.0f * cos(angleRad) + 15.0f * sin(angleRad);
+			float offsetZ = -20.0f * sin(angleRad) + 15.0f * cos(angleRad);
+
+			camera.SetPos(cars[i].pos.x + offsetX, cars[i].pos.y + 40.0f, cars[i].pos.z + offsetZ);
+			camera.SetYaw(-angleRad);
+		}
 	}
-	else {
+
+	if (!anyCarDriving) {
 		camera.ApplyGravity();
 	}
 
 	float cx, cy, cz;
 	camera.GetPos(cx, cy, cz);
 	mainDoor.update(cx, cz);
-
-	if (tahoe.isDoorOpen && tahoe.doorAngle < 70.0f) {
-		tahoe.doorAngle += 2.0f;
-	}
-	else if (!tahoe.isDoorOpen && tahoe.doorAngle > 0.0f) {
-		tahoe.doorAngle -= 2.0f;
-	}
-
 	glutPostRedisplay();
 	glutTimerFunc(16, timer, 0);
 }
@@ -236,51 +244,65 @@ void reshape(int w, int h) {
 
 static void keyboardCallback(unsigned char key, int x, int y) {
 	float step = 15.0f;
-	float carAcceleration = 0.2f; 
-	float turnSpeed = 3.0f;    
+	float carAcceleration = 0.3f; 
+	float turnSpeed = 3.0f;   
 	float cx, cy, cz;
 	camera.GetPos(cx, cy, cz);
-	float dist = sqrt(pow(cx - tahoe.pos.x, 2) + pow(cz - tahoe.pos.z, 2));
+	float dist = sqrt(pow(cx - cars[0].pos.x, 2) + pow(cz - cars[0].pos.z, 2));
+
 
 	switch (key) {
 	case 27:glutLeaveMainLoop();break;
 	case ' ': camera.HandleSpaceTap(); break;
 
 	case 'r': case 'R': {
-		if (!tahoe.isDriving) {
-			if (dist < 150.0f) { 
-				tahoe.isDriving = true;
-				tahoe.isDoorOpen = false;
+		if (!cars[0].isDriving) {
+			if (dist < 150.0f) {
+				cars[0].isDriving = true;
+				cars[0].isDoorOpen = false;
+				cars[0].headlightsOn = true;
+				PlaySound(TEXT("Sounds/car_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 			}
 		}
 		else {
-			tahoe.isDriving = false;
-			tahoe.carSpeed = 0;
-			camera.SetPos(tahoe.pos.x + 80, 20, tahoe.pos.z);
+			cars[0].isDriving = false;
+			cars[0].carSpeed = 0;
+			cars[0].headlightsOn = false;
+			PlaySound(NULL, NULL, 0);
+
+			camera.SetPos(cars[0].pos.x, 20, cars[0].pos.z +80);
 		}
 		break;
 	}
 
-	case 'f': case 'F':
-		if (dist < 150.0f && !tahoe.isDriving) {
-			tahoe.isDoorOpen = !tahoe.isDoorOpen;
+	case 'f': case 'F': 
+		float cx, cy, cz;
+		camera.GetPos(cx, cy, cz);
+
+		for (int i = 0; i < 4; i++) {
+			float dist = sqrt(pow(cx - cars[i].pos.x, 2) + pow(cz - cars[i].pos.z, 2));
+
+			if (dist < 150.0f && !cars[i].isDriving) {
+				cars[i].isDoorOpen = !cars[i].isDoorOpen;
+			}
 		}
 		break;
+	
 
 	case 'w': case 'W':
-		if (tahoe.isDriving) tahoe.carSpeed += carAcceleration;
+		if (cars[0].isDriving) cars[0].carSpeed += carAcceleration;
 		else camera.Move(step);
 		break;
 	case 's': case 'S':
-		if (tahoe.isDriving) tahoe.carSpeed -= carAcceleration;
+		if (cars[0].isDriving) cars[0].carSpeed -= carAcceleration;
 		else camera.Move(-step);
 		break;
 	case 'a': case 'A':
-		if (tahoe.isDriving) tahoe.carRotation += turnSpeed;
+		if (cars[0].isDriving) cars[0].carRotation += turnSpeed;
 		else camera.Strafe(step);
 		break;
 	case 'd': case 'D':
-		if (tahoe.isDriving) tahoe.carRotation -= turnSpeed;
+		if (cars[0].isDriving) cars[0].carRotation -= turnSpeed;
 		else camera.Strafe(-step);
 		break;
 	case 'q': case 'Q': camera.Fly(step); break;
@@ -292,6 +314,10 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 		mwmShowroom.GetBMW().playHorn(Point(cx, cy, cz));
 		break;
 	}
+	case '*':
+		cout << "Key:" << int(key) << endl;
+		PlaySound(TEXT("Sounds/surprise.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		break;
 
 	case 'l': case 'L':
 		mwmShowroom.callElevator(camera); // استدعاء المصعد من خلال المعرض
