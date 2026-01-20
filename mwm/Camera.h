@@ -21,10 +21,13 @@ enum CameraMode {
 };
 
 extern CameraMode currentCamera;
+class Elevator;
+class CarBMW;
 
 class Camera
 {
 public:
+	static constexpr float PLAYER_HEIGHT = 17.0f;
 	const float GRAVITY = -0.98f;      // قوة الجاذبية
 	const float JUMP_FORCE = 14.0f;    // قوة القفز
 	const float MAX_FALL_SPEED = -40.0f;
@@ -36,6 +39,18 @@ public:
 	Camera() { Init(); }
 	~Camera() {}
 
+	// داخل ملف Camera.h في قسم الـ public:
+	void MoveWithPlatform(float deltaY, float floorY) {
+		m_y += deltaY; // تحريك الكاميرا مع المنصة
+
+		// التأكد من أن الكاميرا لا تسقط تحت أرضية المصعد
+		if (m_y < floorY + PLAYER_HEIGHT) {
+			m_y = floorY + PLAYER_HEIGHT;
+		}
+
+		m_verticalVelocity = 0.0f; // إيقاف تأثير الجاذبية أثناء حركة المصعد
+		m_isGrounded = true;       // إعلام الكاميرا أنها واقفة على جسم صلب
+	}
 	void Init();
 	void Refresh();
 	void SetPos(float x, float y, float z);
@@ -44,6 +59,7 @@ public:
 	void SetYaw(float angle);
 	void SetPitch(float angle);
 	bool CheckGroundCollision(const Point& newPos);
+	bool CheckElevatorCollision(float nextX, float nextY, float nextZ, Elevator& elev);
 	bool CheckCollision(const Point& newPos);
 	bool CheckDoorCollision(const Point& newPos);
 	bool TryStepUp(float nextX, float nextZ);
@@ -208,7 +224,7 @@ private:
 
 	const float GROUND_Y = -2.0f;// مستوى الأرض (نفس drawGround)
 	const float PLAYER_RADIUS = 2.0f;   // عرض اللاعب
-	const float PLAYER_HEIGHT = 16.0f;  // ارتفاع عين اللاعب
+	//const float PLAYER_HEIGHT = 16.0f;  // ارتفاع عين اللاعب
 	float m_lx, m_ly, m_lz; // Direction vector of where we are looking at
 	float m_yaw, m_pitch; // Various rotation angles
 	float m_strafe_lx, m_strafe_lz; // Always 90 degree to direction vector

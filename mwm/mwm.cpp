@@ -27,9 +27,9 @@ Door mainDoor;
 FamilyCar tahoe(Point(100, 0, 1000), 140.0f, 65.0f, 14.0f, 50.0f);
 Lighting sceneLighting;
 ShowRoom mwmShowroom;
-Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
+//Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
 
-Elevator myElevator(shaftPos, mwmShowroom.GetFloorHeight());
+//Elevator myElevator(shaftPos, mwmShowroom.GetFloorHeight());
 //CarBMW bmwCar(Point(0, -3.0f, 300), "Sounds/car-not-starting.wav");
 GLuint displayListID;
 bool g_mouseCaptured = false;
@@ -153,8 +153,7 @@ void display() {
 	//setupBMWSpotLight(bmwCar);
 	//bmwCar.draw();
 	tahoe.draw();
-	myElevator.draw();
-
+	mwmShowroom.drawElevator();
 	sceneLighting.drawStreetLight(Point(-500, -3, 850), 150, 6, 80, 0, 10, true, 1);
 	sceneLighting.drawStreetLight(Point(500, -3, 850), 150, 6, 80, 0, 10, false, 2);
 
@@ -164,8 +163,7 @@ void display() {
 }
 
 void timer(int value) {
-	myElevator.update(camera);
-
+	mwmShowroom.updateElevator(camera,tahoe); // تحديث المصعد من خلال المعرض
 	tahoe.update();
 
 	if (tahoe.isDriving) {
@@ -297,10 +295,7 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 	}
 
 	case 'l': case 'L':
-		myElevator.callElevator(
-			camera,
-			mwmShowroom.GetElevatorShaftCenter().z
-		);
+		mwmShowroom.callElevator(camera); // استدعاء المصعد من خلال المعرض
 		break;
 	}
 }

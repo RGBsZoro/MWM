@@ -2,6 +2,7 @@
 #include <GL/glut.h>
 #include <cmath>
 #include "CarBMW.h"
+#include "Elevator.h"
 
 void Camera::Init() {
     m_yaw = 4.44f;
@@ -34,6 +35,30 @@ bool Intersect(const AABB& a, const AABB& b) {
         a.min.z <= b.max.z && a.max.z >= b.min.z);
 }
 
+bool Camera::CheckElevatorCollision(float nextX, float nextY, float nextZ, Elevator& elev) {
+    // استخدام الدوال العامة (Getters) للوصول للبيانات
+    Point ePos = elev.getPosition();
+    float eW = elev.getCabinW();
+    float eD = elev.getCabinD();
+    float eH = elev.getCabinH();
+    float eY = elev.getCurrentY();
+
+    // فحص الحدود الأفقية (X, Z)
+    bool insideX = (nextX >= ePos.x - eW / 2.0f) && (nextX <= ePos.x + eW / 2.0f);
+    bool insideZ = (nextZ <= ePos.z) && (nextZ >= ePos.z - eD);
+
+    if (insideX && insideZ) {
+        // منع السقوط من خلال الأرضية (التصادم من الأسفل)
+        if (nextY < eY + PLAYER_HEIGHT) {
+            return true;
+        }
+        // منع اختراق السقف (التصادم من الأعلى)
+        if (nextY > eY + eH) {
+            return true;
+        }
+    }
+    return false;
+}
 bool Camera::CheckCollision(const Point& newPos) {
     AABB playerBox = GetPlayerAABB(newPos);
     for (const auto& wall : walls) {
