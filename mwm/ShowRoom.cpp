@@ -8,14 +8,31 @@ ShowRoom::ShowRoom()
 {
 	audiR8.load("models/r8/r8.obj", "models/r8/r8.mtl");
 	jaguar.load("models/jaguar/jaguar.obj", "models/jaguar/jaguar.mtl");
+	// إنشاء المصعد باستخدام الدوال الموجودة داخل الكلاس
+	Point shaftPos = GetElevatorShaftCenter();
+	// ضبط الـ Y ليبدأ من سطح الأرضية تماماً
+	shaftPos.y = -0.5f;
 
+	myElevator = new Elevator(shaftPos, GetFloorHeight());
 }
 
-struct SectionLabel {
-	const char* text;
-	Point position;
-	color3f color;
-};
+ShowRoom::~ShowRoom() {
+	delete myElevator;
+}
+
+void ShowRoom::drawElevator() {
+	if (myElevator) myElevator->draw();
+}
+
+void ShowRoom::updateElevator(Camera& cam,FamilyCar& car) {
+	if (myElevator) myElevator->update(cam,car);
+}
+
+void ShowRoom::callElevator(Camera& cam) {
+	if (myElevator) {
+		myElevator->callElevator(cam, GetElevatorShaftCenter().z);
+	}
+}
 
 void ShowRoom::drawJaguar(float x, float y, float z, float rotation) {
 	glPushMatrix();
@@ -338,7 +355,8 @@ void ShowRoom::drawMWMName() {
 
 void ShowRoom::drawBuildingBase() {
 	float t = 5.0f;
-	float totalBuildingH = floorHeight * 2; 
+	float totalBuildingH = floorHeight * 2;
+	float eDoorW = 380.0f; // توحيد عرض فتحة المصعد مع عرض باب المصعد
 
 	glColor3f(0.05f, 0.05f, 0.05f);
 	Cuboid(Point(0, -3, 0), t, totalL, totalW).draw();
@@ -349,70 +367,104 @@ void ShowRoom::drawBuildingBase() {
 	Cuboid(
 		Point(0, floorHeight - 3, 0),
 		t,
-		totalL ,   // فراغ داخلي ذكي
+		totalL - 200,
 		totalW
 	).draw();
 
-	glColor3f(0.1f, 0.1f, 0.1f);
-	Cuboid(Point(0, totalBuildingH - 3, 0), t, totalL, totalW).draw();
+	// 2. الحائط الخلفي (حائط المصعد) - تقسيم الحائط لترك فتحة في المنتصف
+	float sideWallW = (totalW - eDoorW) / 2.0f;
+	float sideWallPos = (totalW / 2.0f) - (sideWallW / 2.0f);
 
 	glColor3f(0.3f, 0.3f, 0.3f);
+	// الجزء الأيسر من الحائط الخلفي
+	Cuboid(Point(-sideWallPos, 0, -totalL / 2), totalBuildingH, 5, sideWallW).draw();
+	// الجزء الأيمن من الحائط الخلفي
+	Cuboid(Point(sideWallPos, 0, -totalL / 2), totalBuildingH, 5, sideWallW).draw();
 
-	Cuboid(
-		Point(-totalW / 2 + (totalW - 120) / 4, -3, -totalL / 2),
-		totalBuildingH,
-		5,
-		(totalW - 120) / 2
-	).draw();
+	// 3. العتبة فوق باب المصعد (التي تمنع رؤية الفراغ فوق الكبينة)
+	float lintelH = floorHeight - 220.0f; // الارتفاع المتبقي فوق الباب (220 هو ارتفاع باب المصعد)
+	// للطابق الأرضي
+	Cuboid(Point(0, 220, -totalL / 2), lintelH, 5, eDoorW).draw();
+	// للطابق الأول
+	Cuboid(Point(0, floorHeight + 220, -totalL / 2), lintelH, 5, eDoorW).draw();
 
-	Cuboid(
-		Point(totalW / 2 - (totalW - 120) / 4, -3, -totalL / 2),
-		totalBuildingH,
-		5,
-		(totalW - 120) / 2
-	).draw();
+	// 4. الحوائط الجانبية والأمامية (بقية الكود الخاص بك...)
+	Cuboid(Point(totalW / 2, 0, 0), totalBuildingH, totalL, t).draw();
+	Cuboid(Point(-totalW / 2, 0, 0), totalBuildingH, totalL, t).draw();
 
-	Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();   
-	Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();  
-
-	Cuboid(
-		Point(0, 100, -totalL / 2),
-		floorHeight - 100,
-		5,
-		120
-	).draw();
-
-	Cuboid(
-		Point(0, floorHeight + 100, -totalL / 2),
-		floorHeight - 100,
-		5,
-		120
-	).draw();
-
-	float sideWallW = (totalW - doorW) / 2.0f;
-	float posX = (totalW / 2.0f) - (sideWallW / 2.0f);
-
-	Cuboid(
-		Point(-posX, -3, totalL / 2),
-		floorHeight,
-		t,
-		sideWallW
-	).draw();
-
-	Cuboid(
-		Point(posX, -3, totalL / 2),
-		floorHeight,
-		t,
-		sideWallW
-	).draw();
-
-	Cuboid(
-		Point(0, doorH - 3, totalL / 2),
-		floorHeight - doorH,
-		t,
-		doorW
-	).draw();
+	// حائط الباب الأمامي (الرئيسي)
+	float frontSideW = (totalW - doorW) / 2.0f;
+	float frontSidePos = (totalW / 2.0f) - (frontSideW / 2.0f);
+	Cuboid(Point(-frontSidePos, 0, totalL / 2), floorHeight, t, frontSideW).draw();
+	Cuboid(Point(frontSidePos, 0, totalL / 2), floorHeight, t, frontSideW).draw();
+	Cuboid(Point(0, doorH, totalL / 2), floorHeight - doorH, t, doorW).draw();
 }
+//void ShowRoom::drawBuildingBase() {
+//	float t = 5.0f;
+//	float totalBuildingH = floorHeight * 2; 
+//
+//	
+//
+//	glColor3f(0.1f, 0.1f, 0.1f);
+//	Cuboid(Point(0, totalBuildingH - 3, 0), t, totalL, totalW).draw();
+//
+//	glColor3f(0.3f, 0.3f, 0.3f);
+//
+//	Cuboid(
+//		Point(-totalW / 2 + (totalW - 120) / 4, -3, -totalL / 2),
+//		totalBuildingH,
+//		5,
+//		(totalW - 120) / 2
+//	).draw();
+//
+//	Cuboid(
+//		Point(totalW / 2 - (totalW - 120) / 4, -3, -totalL / 2),
+//		totalBuildingH,
+//		5,
+//		(totalW - 120) / 2
+//	).draw();
+//
+//	Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();   
+//	Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).draw();  
+//
+//	Cuboid(
+//		Point(0, 100, -totalL / 2),
+//		floorHeight - 100,
+//		5,
+//		120
+//	).draw();
+//
+//	Cuboid(
+//		Point(0, floorHeight + 100, -totalL / 2),
+//		floorHeight - 100,
+//		5,
+//		120
+//	).draw();
+//
+//	float sideWallW = (totalW - doorW) / 2.0f;
+//	float posX = (totalW / 2.0f) - (sideWallW / 2.0f);
+//
+//	Cuboid(
+//		Point(-posX, -3, totalL / 2),
+//		floorHeight,
+//		t,
+//		sideWallW
+//	).draw();
+//
+//	Cuboid(
+//		Point(posX, -3, totalL / 2),
+//		floorHeight,
+//		t,
+//		sideWallW
+//	).draw();
+//
+//	Cuboid(
+//		Point(0, doorH - 3, totalL / 2),
+//		floorHeight - doorH,
+//		t,
+//		doorW
+//	).draw();
+//}
 
 
 void ShowRoom::drawTree(float x, float z) {
@@ -590,102 +642,29 @@ std::vector<Wall> ShowRoom::GetStaticWalls() {
 	float sideWallCenterX = doorW / 2.0f + sideWallWidth / 2.0f;
 	float doorZ = totalL / 2;
 	float totalBuildingH = 600.0f;
-	float shaftW = 120.0f;
-	float sideW = (totalW - shaftW) / 2.0f;
+	float eDoorW = 380.0f;
+	float sideW = (totalW - eDoorW) / 2.0f;
+	float sideWallPos = (totalW / 2.0f) - (sideW / 2.0f);
 
-	w.push_back(Cuboid(Point(-sideW / 2, -3, -totalL / 2), totalBuildingH, t, sideW).ToWall());
-	w.push_back(Cuboid(Point(+sideW / 2, -3, -totalL / 2), totalBuildingH, t, sideW).ToWall());
-	w.push_back(Cuboid(Point(totalW / 2, -3, 0), totalBuildingH, totalL, t).ToWall());
-	w.push_back(Cuboid(Point(-totalW / 2, -3, 0), totalBuildingH, totalL, t).ToWall());
-	w.push_back(
-		Cuboid(
-			Point(
-				0.0f,
-				floorHeight - 150.0f,   
-				+totalL / 2 - 2.5f      
-			),
-			floorHeight,               
-			5.0f,                      
-			totalW - 120.0f            
-		).ToWall()
-	);
+	// إضافة تصادم الحوائط الخلفية الجانبية فقط (ترك المنتصف فارغاً)
+	w.push_back(Cuboid(Point(-sideWallPos, 0, -totalL / 2), totalBuildingH, t, sideW).ToWall());
+	w.push_back(Cuboid(Point(sideWallPos, 0, -totalL / 2), totalBuildingH, t, sideW).ToWall());
 
-	// أرضية الطابق الأرضي (يسار)
-	w.push_back(
-		Cuboid(
-			Point(-sideW / 2, -3, 0),
-			5.0f,
-			totalL,
-			sideW
-		).ToWall()
-	);
+	// الحوائط الجانبية للمبنى
+	w.push_back(Cuboid(Point(totalW / 2, 0, 0), totalBuildingH, totalL, t).ToWall());
+	w.push_back(Cuboid(Point(-totalW / 2, 0, 0), totalBuildingH, totalL, t).ToWall());
 
-	// أرضية الطابق الأرضي (يمين)
-	w.push_back(
-		Cuboid(
-			Point(+sideW / 2, -3, 0),
-			5.0f,
-			totalL,
-			sideW
-		).ToWall()
-	);
-
-	// سقف الطابق الأرضي (أرضية الطابق العلوي)
-	// سقف الطابق الأرضي (يسار الفتحة)
-	w.push_back(
-		Cuboid(
-			Point(-sideW / 2, floorHeight - 3, 0),
-			5.0f,
-			totalL,
-			sideW
-		).ToWall()
-	);
-
-	// سقف الطابق الأرضي (يمين الفتحة)
-	w.push_back(
-		Cuboid(
-			Point(+sideW / 2, floorHeight - 3, 0),
-			5.0f,
-			totalL,
-			sideW
-		).ToWall()
-	);
-	// ===== حيطان جانبية حول الباب الزجاجي =====
-
-// الحائط الأيسر للباب
-	w.push_back(
-		Cuboid(
-			Point(-sideWallCenterX, -3, doorZ),
-			floorHeight,
-			wallThickness,
-			sideWallWidth
-		).ToWall()
-	);
-
-	// الحائط الأيمن للباب
-	w.push_back(
-		Cuboid(
-			Point(+sideWallCenterX, -3, doorZ),
-			floorHeight,
-			wallThickness,
-			sideWallWidth
-		).ToWall()
-	);
-
-
-
+	// تصادم المنصات (Podiums)
 	for (int floor = 0; floor < 2; floor++) {
-		float yOff = floor * 300.0f;
+		float yOff = floor * floorHeight;
 		for (int row = 0; row < 3; row++) {
 			float pz = -450.0f + (row * 450.0f);
-			w.push_back(Cuboid(Point(400.0f, -3 + yOff, pz), 9, 300, 300).ToWall());
-			w.push_back(Cuboid(Point(-400.0f, -3 + yOff, pz), 9, 300, 300).ToWall());
+			w.push_back(Cuboid(Point(400.0f, yOff, pz), 10, 300, 300).ToWall());
+			w.push_back(Cuboid(Point(-400.0f, yOff, pz), 10, 300, 300).ToWall());
 		}
 	}
-	w.push_back(Cuboid(Point(0, 300 - 3, -totalL / 2 + 180), 60, 40, 220).ToWall());
 	return w;
 }
-
 Wall ShowRoom::GetMainDoorWall() {
 	return Cuboid(Point(0, -3, totalL / 2), doorH, 10.0f, doorW).ToWall();
 }
