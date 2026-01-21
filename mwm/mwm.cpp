@@ -171,7 +171,7 @@ void display() {
 
 
 void timer(int value) {
-	mwmShowroom.updateElevator(camera,tahoe); // تحديث المصعد من خلال المعرض
+	mwmShowroom.updateElevator(camera,cars[0]); // تحديث المصعد من خلال المعرض
 	bool anyCarDriving = false; 
 
 	for (int i = 0; i < 4; i++) {
@@ -227,7 +227,7 @@ void init() {
 
 	setupCollision();
 
-	timeOfDay.apply();
+	//timeOfDay.apply();
 
 	camera.SetPos(0, 20, 1200);
 }
@@ -323,7 +323,7 @@ static void keyboardCallback(unsigned char key, int x, int y) {
 		mwmShowroom.callElevator(camera); // استدعاء المصعد من خلال المعرض
 		break;
 	case 'm': case 'n':
-		timeOfDay.toggle();
+		//timeOfDay.toggle();
 		break;
 
 	}
