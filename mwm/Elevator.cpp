@@ -1,4 +1,5 @@
-﻿#include "Elevator.h"
+﻿#include <windows.h>   // يجب أن يكون في الأعلى
+#include "Elevator.h"
 #include <cmath>
 #include "FamilyCar.h"
 
@@ -47,11 +48,21 @@ void Elevator::update(Camera& cam, FamilyCar& car) {
 
         if (state == ElevatorState::MOVING_UP) {
             currentY += speed;
-            if (currentY >= topY) { currentY = topY; state = ElevatorState::IDLE; doorState = DoorState::OPENING; }
+            if (currentY >= topY) {
+                currentY = topY;
+                state = ElevatorState::IDLE;
+                doorState = DoorState::OPENING;
+                PlaySound(TEXT("Sounds/elevator_ding.wav"), NULL, SND_FILENAME | SND_ASYNC);
+            }
         }
         else if (state == ElevatorState::MOVING_DOWN) {
             currentY -= speed;
-            if (currentY <= bottomY) { currentY = bottomY; state = ElevatorState::IDLE; doorState = DoorState::OPENING; }
+            if (currentY <= bottomY) {
+                currentY = bottomY;
+                state = ElevatorState::IDLE;
+                doorState = DoorState::OPENING;
+                PlaySound(TEXT("Sounds/elevator_ding.wav"), NULL, SND_FILENAME | SND_ASYNC);
+            }
         }
 
         // حساب الإزاحة (deltaY) بعد تحديث currentY

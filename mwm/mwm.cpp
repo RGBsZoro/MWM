@@ -33,6 +33,7 @@ FamilyCar cars[4] = {
 };
 Lighting sceneLighting;
 ShowRoom mwmShowroom;
+TimeOfDay timeOfDay;	
 //Point shaftPos = mwmShowroom.GetElevatorShaftCenter();
 
 //Elevator myElevator(shaftPos, mwmShowroom.GetFloorHeight());

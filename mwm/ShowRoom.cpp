@@ -8,7 +8,16 @@ ShowRoom::ShowRoom()
 {
 	audiR8.load("models/r8/r8.obj", "models/r8/r8.mtl");
 	jaguar.load("models/jaguar/jaguar.obj", "models/jaguar/jaguar.mtl");
+	// في Constructor
+	float rightX = 400.0f;
+	float topFloorY = floorHeight;
+
+	bikes.push_back(new CityBike(Point(rightX, topFloorY, -450.0f)));
+	bikes.push_back(new SportBike(Point(rightX, topFloorY, 0.0f)));
+	bikes.push_back(new ElectricBike(Point(rightX, topFloorY, 450.0f)));
+
 	// إنشاء المصعد باستخدام الدوال الموجودة داخل الكلاس
+
 	Point shaftPos = GetElevatorShaftCenter();
 	// ضبط الـ Y ليبدأ من سطح الأرضية تماماً
 	shaftPos.y = -0.5f;
@@ -17,6 +26,7 @@ ShowRoom::ShowRoom()
 }
 
 ShowRoom::~ShowRoom() {
+	for (auto b : bikes) delete b;
 	delete myElevator;
 }
 
@@ -33,6 +43,86 @@ void ShowRoom::callElevator(Camera& cam) {
 		myElevator->callElevator(cam, GetElevatorShaftCenter().z);
 	}
 }
+
+//void ShowRoom::drawMotorcycle(Point p) {
+//	glPushMatrix();
+//	glTranslatef(p.x, p.y + 10.0f, p.z);
+//	glScalef(0.9f, 0.9f, 0.9f);
+//
+//	// Wheels
+//	Cylinder c;
+//	GLfloat tire[] = { 0.05f, 0.05f, 0.05f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, tire);
+//
+//	glPushMatrix();
+//	glTranslatef(-45, 12, 0);
+//	glRotatef(90, 0, 1, 0);
+//	c.draw(Point(0, 0, 0), 18, 18, 6, 24, 1);
+//	glPopMatrix();
+//
+//	glPushMatrix();
+//	glTranslatef(45, 12, 0);
+//	glRotatef(90, 0, 1, 0);
+//	c.draw(Point(0, 0, 0), 18, 18, 6, 24, 1);
+//	glPopMatrix();
+//
+//	// Body
+//	GLfloat body[] = { 0.05f, 0.05f, 0.05f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, body);
+//	Cuboid(Point(0, 28, 0), 8, 90, 18).draw();
+//
+//	// Fuel Tank (Red Accent)
+//	GLfloat accent[] = { 0.8f, 0.1f, 0.1f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, accent);
+//	Cuboid(Point(10, 35, 0), 10, 25, 20).draw();
+//
+//	// Exhaust
+//	GLfloat chrome[] = { 0.7f, 0.7f, 0.7f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, chrome);
+//	Cuboid(Point(-10, 20, -12), 6, 50, 6).draw();
+//
+//	glPopMatrix();
+//}
+
+//void ShowRoom::drawBicycle(Point p) {
+//	glPushMatrix();
+//	glTranslatef(p.x, p.y + 10.0f, p.z);
+//	glScalef(0.85f, 0.85f, 0.85f);
+//
+//	Cylinder c;
+//
+//	// Wheels (thin)
+//	GLfloat tire[] = { 0.1f, 0.1f, 0.1f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, tire);
+//
+//	glPushMatrix();
+//	glTranslatef(-40, 14, 0);
+//	glRotatef(90, 0, 1, 0);
+//	c.draw(Point(0, 0, 0), 16, 16, 4, 28, 1);
+//	glPopMatrix();
+//
+//	glPushMatrix();
+//	glTranslatef(40, 14, 0);
+//	glRotatef(90, 0, 1, 0);
+//	c.draw(Point(0, 0, 0), 16, 16, 4, 28, 1);
+//	glPopMatrix();
+//
+//	// Frame
+//	GLfloat frame[] = { 0.85f, 0.88f, 0.9f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, frame);
+//
+//	Cuboid(Point(0, 28, 0), 4, 80, 4).draw();
+//	Cuboid(Point(15, 30, 0), 3, 40, 3).draw();
+//	Cuboid(Point(-15, 30, 0), 3, 40, 3).draw();
+//
+//	// Seat
+//	GLfloat seat[] = { 0.15f, 0.15f, 0.15f, 1 };
+//	glMaterialfv(GL_FRONT, GL_DIFFUSE, seat);
+//	Cuboid(Point(-10, 38, 0), 5, 12, 8).draw();
+//
+//	glPopMatrix();
+//}
+
 
 void ShowRoom::drawJaguar(float x, float y, float z, float rotation) {
 	glPushMatrix();
@@ -186,63 +276,52 @@ void ShowRoom::drawPodiums(float yOffset) {
 	for (int row = 0; row < 3; row++) {
 		float posZ = -450.0f + (row * spacingZ);
 
+		// 1. رسم المنصات دائماً لكل الطوابق ولكل الجهات
+		// جهة اليمين
+		drawModernPodium(sideX, posZ, baseID + row, (yOffset > 0 ? 2 : 1));
+		// جهة اليسار
+		drawModernPodium(-sideX, posZ, baseID + row + 3, (yOffset > 0 ? 3 : 0));
+
+		// 2. توزيع المحتويات بناءً على الطابق
 		if (yOffset == 0) {
-			drawModernPodium(sideX, posZ, baseID + row, 1);
+			// محتويات الطابق الأرضي (السيارات)
 			if (row == 0) {
 				drawJaguar(sideX, 0.0f, posZ, -90.0f);
-			}
-
-			drawModernPodium(-sideX, posZ, baseID + row + 3, 0);
-
-			if (row == 0) {
 				drawSportsCar(-sideX, 10.0f, posZ, 90.0f);
 			}
-
 			if (row == 1) {
 				glPushMatrix();
 				glTranslatef(-sideX, 10.0f, posZ);
-				glRotatef(0, 0, 1, 0);
-				//glScalef(0.9f, 0.9f, 0.9f);
 				bmw.draw();
 				glPopMatrix();
 			}
 			if (row == 2) {
-				drawSimpleCar(
-					Point(sideX, 0.0f, posZ),
-					1.0f,
-					0.1f, 0.5f, 0.2f   
-				);
+				drawSimpleCar(Point(sideX, 0.0f, posZ), 1.0f, 0.1f, 0.5f, 0.2f);
 			}
+		}
+		else if (yOffset == floorHeight) {
+			// بدلاً من bikes[row]->pos.x
+			// رسم الدراجة المناسبة لهذا الصف من الـ vector
+			// نتأكد أن الـ row لا يتجاوز عدد الدراجات الموجودة
+			if (row < (int)bikes.size()) {
+				glPushMatrix();
+				// بما أن drawFloorContent قامت بعمل translate لـ yOffset
+				// ونحن نريد الدراجة فوق المنصة مباشرة في هذا الطابق،
+				// يجب أن نلغي تأثير pos.y المخزن (300) ونرسمها بالنسبة للطابق الحالي.
 
-			if (row == 1 && yOffset > 0) {
-				drawSimpleCar(
-					Point(-sideX, yOffset, posZ),
-					1.1f,
-					0.6f, 0.1f, 0.1f  
-				);
+				// الحل هو طرح yOffset من الارتفاع الحالي 
+				glTranslatef(0, -yOffset, 0);
+
+				bikes[row]->draw();
+				glPopMatrix();
 			}
-
-			if (row == 2 && yOffset > 0) {
-				drawSimpleCar(
-					Point(sideX, yOffset, posZ),
-					0.95f,
-					0.6f, 0.6f, 0.6f   
-				);
-			}
-
 		}
 
-
-		else {
-			drawModernPodium(sideX, posZ, baseID + row, 2);      
-			drawModernPodium(-sideX, posZ, baseID + row + 3, 3);  
-		}
-
-		drawCeilingLightRing(Point(sideX, 290, posZ));
-		drawCeilingLightRing(Point(-sideX, 290, posZ));
+		// 3. رسم حلقات الإضاءة السقفية دائماً
+		drawCeilingLightRing(Point(sideX, yOffset + 290, posZ));
+		drawCeilingLightRing(Point(-sideX, yOffset + 290, posZ));
 	}
 }
-
 CarBMW& ShowRoom::GetBMW() {
 	return bmw;
 }

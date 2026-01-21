@@ -7,6 +7,10 @@
 #include "CarBMW.h"
 #include "Camera.h"
 #include "FamilyCar.h"
+#include "Bike.h"
+#include "SportBike.h"
+#include "CityBike.h"
+#include "ElectricBike.h"
 
 class Elevator;
 
@@ -41,6 +45,7 @@ public:
     Wall GetMainDoorWall();
 
 private:
+    std::vector<Bike*> bikes;
     CarBMW bmw;
     ModelLoader audiR8;
     ModelLoader jaguar;   

@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include <windows.h>   // يجب أن يكون في الأعلى
 #include <cmath>
 #include <GL/freeglut.h>
 #include "Point.h"
 #include "Cuboid.h"
 #include "Camera.h"
 #include "FamilyCar.h"
+#pragma comment(lib, "winmm.lib") // لربط مكتبة الصوت تلقائياً
+
 
 enum class ElevatorState { IDLE, MOVING_UP, MOVING_DOWN };
 enum class DoorState { CLOSED, OPENING, OPEN, CLOSING };
